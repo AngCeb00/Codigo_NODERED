@@ -1,0 +1,6079 @@
+[
+    {
+        "id": "2e2fa0d633e30fc9",
+        "type": "tab",
+        "label": "LlenadoTolvas",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "964ebaf70f36b80a",
+        "type": "mqtt in",
+        "z": "2e2fa0d633e30fc9",
+        "name": "",
+        "topic": "CAMARONERA/loraGateway",
+        "qos": "2",
+        "datatype": "auto-detect",
+        "broker": "f5314e0adbc5bc97",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 140,
+        "y": 260,
+        "wires": [
+            [
+                "7d0d6ddf447b448e"
+            ]
+        ]
+    },
+    {
+        "id": "45325c015f2538bd",
+        "type": "telegram receiver",
+        "z": "2e2fa0d633e30fc9",
+        "name": "Recepción mensajes",
+        "bot": "da0afbc21da333e3",
+        "saveDataDir": "",
+        "filterCommands": false,
+        "x": 2790,
+        "y": 1580,
+        "wires": [
+            [
+                "93b79390efd37b07",
+                "65214e8251f1221a"
+            ],
+            []
+        ]
+    },
+    {
+        "id": "6f568085b594ab5e",
+        "type": "telegram sender",
+        "z": "2e2fa0d633e30fc9",
+        "name": "",
+        "bot": "da0afbc21da333e3",
+        "haserroroutput": false,
+        "outputs": 1,
+        "x": 4650,
+        "y": 1060,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "5c9ca9ac316bc5e2",
+        "type": "function",
+        "z": "2e2fa0d633e30fc9",
+        "name": "Insertar usuario nuevo",
+        "func": "\nlet nombreusu = msg.payload.firstname;\nlet apellidousu = msg.payload.lastname;\nlet alertausu = msg.payload.alerta;\nlet alarmausu = msg.payload.alarma;\nlet correousu = msg.payload.correo;\nlet telefonousu = msg.payload.telefono;\n\nif (msg.payload.activarinsertar === \"insertar\"){\n    \n    msg.topic = \"INSERT INTO tlusuarios(Nombre, Apellido, Alerta, Alarma, Correo,\"\n    +\"Telefono) VALUES ('\"+nombreusu+\"', '\"+apellidousu+\"', '\"+alertausu+\"', '\"\n    +alarmausu+\"', '\"+correousu+\"', '\"+telefonousu+\"') ;\";\n    return msg;\n    \n}else{\n    \n}",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 3460,
+        "y": 440,
+        "wires": [
+            [
+                "3a8aad8fa02a6768"
+            ]
+        ]
+    },
+    {
+        "id": "fee72e919c9c68e8",
+        "type": "debug",
+        "z": "2e2fa0d633e30fc9",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 4590,
+        "y": 1240,
+        "wires": []
+    },
+    {
+        "id": "7c79788f2861198c",
+        "type": "inject",
+        "z": "2e2fa0d633e30fc9",
+        "name": "Leer",
+        "props": [
+            {
+                "p": "payload.content",
+                "v": "Leer",
+                "vt": "str"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "x": 2770,
+        "y": 1460,
+        "wires": [
+            [
+                "872f614abd7487b3"
+            ]
+        ]
+    },
+    {
+        "id": "872f614abd7487b3",
+        "type": "function",
+        "z": "2e2fa0d633e30fc9",
+        "name": "Leer",
+        "func": "const consultapisc = msg.consulta;\nconst solitarinf = msg.solicitud;\nconst solicitarleer = msg.payload.content;\nif (solicitarinf && consultapisc>0){\n    msg.topic = \"select from tlestado where Piscina = '\"+consultapisc+\"';\";\n    msg.request = \"uno\";\n}else if ( (solicitarinf && consultapisc===0) || solicitarleer===\"Leer\"){\n    msg.topic = \"select * from tlestado order by Piscina asc;\";\n    msg.request = \"todos\";\n}else{\n    \n}\nmsg.leer = true;\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 3510,
+        "y": 1460,
+        "wires": [
+            [
+                "3a8aad8fa02a6768"
+            ]
+        ]
+    },
+    {
+        "id": "a3b861a6f564f5c1",
+        "type": "switch",
+        "z": "2e2fa0d633e30fc9",
+        "name": "",
+        "property": "leer",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "true"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 1,
+        "x": 4250,
+        "y": 1140,
+        "wires": [
+            [
+                "2869a9b7ecc51ba5",
+                "4550a9a10da25f7f"
+            ]
+        ]
+    },
+    {
+        "id": "2869a9b7ecc51ba5",
+        "type": "function",
+        "z": "2e2fa0d633e30fc9",
+        "name": "",
+        "func": "const requerimiento = msg.request;\nif (requerimiento===\"uno\"){\n    flow.set(\"mysqlFecha\",msg.payload[0].Fecha);\n    flow.set(\"mysqlPiscina\",msg.payload[0].Piscina);\n    flow.set(\"mysqlTolva\",msg.payload[0].Tolva);\n    flow.set(\"mysqlLlenada\",msg.payload[0].Llenada);\n    flow.set(\"mysqlIDTolva\",msg.payload[0].IDTolva);\n    msg = { payload: \"Fecha: \"+flow.get(\"mysqlFecha\")+\n                  \"\\n Piscina: \"+flow.get(\"mysqlPiscina\")+ \n                  \"\\n Tolva: \"+flow.get(\"mysqlTolva\")+ \n                  \"\\n Llenada: \"+flow.get(\"mysqlLlenada\")+\n                  \"\\n IDTolva: \"+flow.get(\"mysqlIDTolva\")\n    }\n    return msg;\n    \n}else{\n    flow.set(\"mysqlFecha\",msg.payload.Fecha);\n    flow.set(\"mysqlPiscina\",msg.payload.Piscina);\n    flow.set(\"mysqlZona\",msg.payload.Zona);\n    flow.set(\"mysqlLlenada\",msg.payload.Llenada);\n    flow.set(\"mysqlIDTolva\",msg.payload.IDTolva);\n    const fechassolicitud = flow.get(\"mysqlFecha\"); \n    const piscinassolicitud = flow.get(\"mysqlPiscina\"); \n    const tolvassolicitud = flow.get(\"mysqlTolva\"); \n    const llenadassolicitud = flow.get(\"mysqlLlenada\"); \n    const idessolicitud = flow.get(\"mysqlIDTolva\"); \n    const longitud = idessolicitud.length;\n    for (i=0;i<= longitud -1 ;i++){\n        msg ={ payload:  \"Fecha: \"+fechassolicitud.slice(i,i+1)+\n                      \"\\n Piscina: \"+piscinassolicitud.slice(i,i+1)+ \n                      \"\\n Tolva: \"+tolvassolicitud.slice(i,i+1)+ \n                      \"\\n Llenada: \"+llenadassolicitud.slice(i,i+1)+\n                      \"\\n IDTolva: \"+idessolicitud.slice(i,i+1)\n        }\n    return msg;\n    }\n    \n}\n",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 4380,
+        "y": 1240,
+        "wires": [
+            [
+                "fee72e919c9c68e8"
+            ]
+        ]
+    },
+    {
+        "id": "2411325af02f0ce5",
+        "type": "inject",
+        "z": "2e2fa0d633e30fc9",
+        "name": "Resetar DB",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 2790,
+        "y": 1700,
+        "wires": [
+            [
+                "78b22b9eb6c2155d"
+            ]
+        ]
+    },
+    {
+        "id": "78b22b9eb6c2155d",
+        "type": "function",
+        "z": "2e2fa0d633e30fc9",
+        "name": "Resetear",
+        "func": "msg.topic = \"TRUNCATE TABLE estatustolvas;\";\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 3500,
+        "y": 1640,
+        "wires": [
+            [
+                "3a8aad8fa02a6768"
+            ]
+        ]
+    },
+    {
+        "id": "a2f3d3f3f8a0230a",
+        "type": "inject",
+        "z": "2e2fa0d633e30fc9",
+        "name": "Borrar Registros Antiguos",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 2830,
+        "y": 1820,
+        "wires": [
+            [
+                "6faf067be20f9520"
+            ]
+        ]
+    },
+    {
+        "id": "6faf067be20f9520",
+        "type": "function",
+        "z": "2e2fa0d633e30fc9",
+        "name": "Borrar registros",
+        "func": "fechahora = new Date();\nfechahora.setHours(fechahora.getHours()-2);\nstrfechahora = fechahora.toISOString.slice(0, -1);\n\nmsg.topic = \"DELETE FROM estatustolvas WHERE Fecha<'\"+strfechahora+\"'\";\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 3480,
+        "y": 1820,
+        "wires": [
+            [
+                "3a8aad8fa02a6768"
+            ]
+        ]
+    },
+    {
+        "id": "93b79390efd37b07",
+        "type": "switch",
+        "z": "2e2fa0d633e30fc9",
+        "name": "",
+        "property": "payload.content",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "eq",
+                "v": "Leer",
+                "vt": "str"
+            },
+            {
+                "t": "eq",
+                "v": "Resetear",
+                "vt": "str"
+            },
+            {
+                "t": "eq",
+                "v": "Borrar",
+                "vt": "str"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 3,
+        "x": 3150,
+        "y": 1580,
+        "wires": [
+            [
+                "872f614abd7487b3"
+            ],
+            [
+                "78b22b9eb6c2155d"
+            ],
+            [
+                "6faf067be20f9520"
+            ]
+        ]
+    },
+    {
+        "id": "4550a9a10da25f7f",
+        "type": "function",
+        "z": "2e2fa0d633e30fc9",
+        "name": "Enviar Telegram",
+        "func": "const requerimiento = msg.request;\nif (requerimiento===\"uno\"){\n    flow.set(\"mysqlFecha\",msg.payload[0].Fecha);\n    flow.set(\"mysqlPiscina\",msg.payload[0].Piscina);\n    flow.set(\"mysqlTolva\",msg.payload[0].Tolva);\n    flow.set(\"mysqlLlenada\",msg.payload[0].Llenada);\n    flow.set(\"mysqlIDTolva\",msg.payload[0].IDTolva);\n    msg.payload={\n           \"chatId\":2090731478,\n           \"type\":\"message\",\n           \"content\": \"Fecha: \"+flow.get(\"mysqlFecha\")+\n                   \"\\n Piscina: \"+flow.get(\"mysqlPiscina\")+ \n                   \"\\n Tolva: \"+flow.get(\"mysqlTolva\")+ \n                   \"\\n Llenada: \"+flow.get(\"mysqlLlenada\")+\n                   \"\\n IDTolva: \"+flow.get(\"mysqlIDTolva\")\n    }\n    return msg;\n    \n}else{\n    flow.set(\"mysqlFecha\",msg.payload.Fecha);\n    flow.set(\"mysqlPiscina\",msg.payload.Piscina);\n    flow.set(\"mysqlZona\",msg.payload.Zona);\n    flow.set(\"mysqlLlenada\",msg.payload.Llenada);\n    flow.set(\"mysqlIDTolva\",msg.payload.IDTolva);\n    const fechassolicitud = flow.get(\"mysqlFecha\"); \n    const piscinassolicitud = flow.get(\"mysqlPiscina\"); \n    const tolvassolicitud = flow.get(\"mysqlTolva\"); \n    const llenadassolicitud = flow.get(\"mysqlLlenada\"); \n    const idessolicitud = flow.get(\"mysqlIDTolva\"); \n    const longitud = idessolicitud.length;\n    for (i=0;i<= longitud -1 ;i++){\n        msg.payload={\n                     \"chatId\":2090731478,\n                     \"type\":\"message\",\n                     \"content\": \"Fecha: \"+fechassolicitud.slice(i,i+1)+\n                             \"\\n Piscina: \"+piscinassolicitud.slice(i,i+1)+ \n                             \"\\n Tolva: \"+tolvassolicitud.slice(i,i+1)+ \n                             \"\\n Llenada: \"+llenadassolicitud.slice(i,i+1)+\n                             \"\\n IDTolva: \"+idessolicitud.slice(i,i+1)\n        }\n    return msg;\n    }\n    \n}\n\n",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 4420,
+        "y": 1060,
+        "wires": [
+            [
+                "6f568085b594ab5e"
+            ]
+        ]
+    },
+    {
+        "id": "c4add5cac4ac8a81",
+        "type": "inject",
+        "z": "2e2fa0d633e30fc9",
+        "name": "FalsoLora",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "PISC_1/NB",
+        "payloadType": "str",
+        "x": 200,
+        "y": 540,
+        "wires": [
+            [
+                "7d0d6ddf447b448e"
+            ]
+        ]
+    },
+    {
+        "id": "7d0d6ddf447b448e",
+        "type": "function",
+        "z": "2e2fa0d633e30fc9",
+        "name": "Procesar MQTT/Generar QUERY",
+        "func": "const [pisc,cod] = msg.payload.split('/');\nlet arrpisc = pisc.split(\"_\");\nlet numpisc = arrpisc[1];\n\n\nif (cod===\"A1\"||cod===\"A2\"||cod===\"A3\"||cod===\"A4\"){\n    let numtolva = cod.slice(1,);\n    let idtolva = numpisc+\"_\"+numtolva;\n    msg.topic = \"select * from tlestado where IDTolva='\"+idtolva+\"' ;\";\n    msg.tolva = true;\n    return msg;\n}else if (cod===\"NB\"){\n    msg.topic = \"select * from tlusuarios where Alerta='Si' ;\";\n    msg.alerta = true;\n    msg.piscinaalerta = numpisc;\n    return msg;\n}else if (cod===\"N0\"){\n    msg.topic = \"select * from tlusuarios where Alarma='Si' ;\";\n    msg.alarma1 = true;\n    msg.piscinaalarma1 = numpisc;\n    return msg;\n}else if (cod===\"RT\"){\n    msg.topic = \"select * from tlusuarios where Alarma='Si' ;\";\n    msg.alarma2 = true;\n    msg.piscinaalarma2 = numpisc;\n    return msg;\n}else{\n    return msg;\n}\n\n",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 340,
+        "y": 400,
+        "wires": [
+            [
+                "f12d7b681d868b55",
+                "6876a419aa0fdfe9"
+            ]
+        ]
+    },
+    {
+        "id": "f12d7b681d868b55",
+        "type": "debug",
+        "z": "2e2fa0d633e30fc9",
+        "name": "",
+        "active": false,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "topic",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 580,
+        "y": 220,
+        "wires": []
+    },
+    {
+        "id": "1e33196ea9deb623",
+        "type": "function",
+        "z": "2e2fa0d633e30fc9",
+        "name": "Actualizar tlestado 1",
+        "func": "flow.set(\"mysqlPiscina\",msg.payload[0].Piscina);\nflow.set(\"mysqlTolva\",msg.payload[0].Tolva);\nflow.set(\"mysqlLlenada\",msg.payload[0].Llenada);\nflow.set(\"mysqlIDTolva\",msg.payload[0].IDTolva);\nlet numllenada = Number(flow.get(\"mysqlLlenada\"))+1;\nlet llenadaact = String(numllenada);\nmsg.topic = \"update tlestado set Llenada ='\"+llenadaact+\"' where IDTolva='\"\n+flow.get(\"mysqlIDTolva\")+\"';\";\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1760,
+        "y": 100,
+        "wires": [
+            [
+                "0745512a8c9d40e5"
+            ]
+        ]
+    },
+    {
+        "id": "9bba6d6d07ba378a",
+        "type": "switch",
+        "z": "2e2fa0d633e30fc9",
+        "name": "tolva llenada",
+        "property": "tolva",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "true"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 1,
+        "x": 1190,
+        "y": 100,
+        "wires": [
+            [
+                "1e33196ea9deb623",
+                "e2b82ce0355a7c9c"
+            ]
+        ]
+    },
+    {
+        "id": "6f35ad22b24b0a13",
+        "type": "switch",
+        "z": "2e2fa0d633e30fc9",
+        "name": "nivel bajo",
+        "property": "alerta",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "true"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 1,
+        "x": 1180,
+        "y": 280,
+        "wires": [
+            [
+                "d271660b13bf24f7"
+            ]
+        ]
+    },
+    {
+        "id": "6c99b224277ff472",
+        "type": "switch",
+        "z": "2e2fa0d633e30fc9",
+        "name": "nivel 0",
+        "property": "alarma1",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "true"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 1,
+        "x": 1170,
+        "y": 460,
+        "wires": [
+            [
+                "268b19c3700d86db"
+            ]
+        ]
+    },
+    {
+        "id": "905ff10fe9fdd00b",
+        "type": "switch",
+        "z": "2e2fa0d633e30fc9",
+        "name": "relé térmico",
+        "property": "alarma2",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "true"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 1,
+        "x": 1190,
+        "y": 700,
+        "wires": [
+            [
+                "ff339b17a80ff91e"
+            ]
+        ]
+    },
+    {
+        "id": "0a6f75547d4b0edb",
+        "type": "function",
+        "z": "2e2fa0d633e30fc9",
+        "name": "Construir correo alerta",
+        "func": "\nflow.set(\"contador\",msg.conteo);\nflow.set(\"total\",msg.numeritos);\nflow.set(\"carga\",msg.payload);\nflow.set(\"piscinita\",msg.piscinaalerta);\n\nlet corte = Number(flow.get(\"contador\"));\nlet sigcorte = corte + 1;\nlet limite = Number(flow.get(\"total\"));\nlet objeto = flow.get(\"carga\")\nlet numpisci = Number(flow.get(\"piscinita\"));\n\n\nflow.set(\"mysqlNombre\",msg.payload[corte].Nombre);\nflow.set(\"mysqlApellido\",msg.payload[corte].Apellido);\nflow.set(\"mysqlAlerta\",msg.payload[corte].Alerta);\nflow.set(\"mysqlAlarma\",msg.payload[corte].Alarma);\nflow.set(\"mysqlCorreo\",msg.payload[corte].Correo);\nflow.set(\"mysqlTelefono\",msg.payload[corte].Telefono); \n    \nconst piscinanumber = String(numpisci);\nnombre = String(flow.get(\"mysqlNombre\"));\napellido = String(flow.get(\"mysqlApellido\"));\ncorreo = String(flow.get(\"mysqlCorreo\"));\nlet nuevafecha= new Date().toLocaleString();\ntitulo = \"Alerta silo con nivel bajo\" +nuevafecha;\nmensaje = \"¡Alerta!\\nEstimado \"+nombre+\" \"+apellido+\", \\n\"+\n\"Se le informa que se ha detectado que el silo de la piscina \"\n+piscinanumber+\" presenta un bajo nivel de balanceado.\"\nmsg = {payload: mensaje, to: correo, topic: titulo};\nmsg.conteo = sigcorte;\nmsg.numeritos = limite;\nmsg.payloadsig = objeto;\nmsg.piscinaalerta = numpisci;\n\nreturn msg;\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1740,
+        "y": 220,
+        "wires": [
+            [
+                "db0296da93383155",
+                "ea7d382d0d3df6a8"
+            ]
+        ]
+    },
+    {
+        "id": "8d3abb17541c5495",
+        "type": "function",
+        "z": "2e2fa0d633e30fc9",
+        "name": "Construir correo alarma1",
+        "func": "flow.set(\"contador\",msg.conteo);\nflow.set(\"total\",msg.numeritos);\nflow.set(\"carga\",msg.payload);\nflow.set(\"piscinita\",msg.piscinaalarma1);\n\nlet corte = Number(flow.get(\"contador\"));\nlet sigcorte = corte + 1;\nlet limite = Number(flow.get(\"total\"));\nlet objeto = flow.get(\"carga\")\nlet numpisci = Number(flow.get(\"piscinita\"));\n\n\nflow.set(\"mysqlNombre\",msg.payload[corte].Nombre);\nflow.set(\"mysqlApellido\",msg.payload[corte].Apellido);\nflow.set(\"mysqlAlerta\",msg.payload[corte].Alerta);\nflow.set(\"mysqlAlarma\",msg.payload[corte].Alarma);\nflow.set(\"mysqlCorreo\",msg.payload[corte].Correo);\nflow.set(\"mysqlTelefono\",msg.payload[corte].Telefono); \n    \nconst piscinanumber = String(numpisci);\nnombre = String(flow.get(\"mysqlNombre\"));\napellido = String(flow.get(\"mysqlApellido\"));\ncorreo = String(flow.get(\"mysqlCorreo\"));\nlet nuevafecha= new Date().toLocaleString();\ntitulo = \"Alarma silo sin balanceado\" + nuevafecha;\nmensaje = \"¡Alarma!¡Emergencia!\\nEstimado \"+nombre+\" \"+apellido+\", \\n\"+\n\"Se le informa que se ha detectado que el silo de la piscina \"\n+piscinanumber+\" se encuentra sin balanceado.\"\n\nmsg = {payload: mensaje, to: correo, topic: titulo};\nmsg.conteo = sigcorte;\nmsg.numeritos = limite;\nmsg.payloadsig = objeto;\nmsg.piscinaalarma1 = numpisci;\n\nreturn msg;\n\n\n\n",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1730,
+        "y": 400,
+        "wires": [
+            [
+                "469dc5b16f65b606",
+                "ea7d382d0d3df6a8"
+            ]
+        ]
+    },
+    {
+        "id": "e4c5f1e1b1e92d48",
+        "type": "function",
+        "z": "2e2fa0d633e30fc9",
+        "name": "Construir correo alarma2",
+        "func": "flow.set(\"contador\",msg.conteo);\nflow.set(\"total\",msg.numeritos);\nflow.set(\"carga\",msg.payload);\nflow.set(\"piscinita\",msg.piscinaalarma2);\n\nlet corte = Number(flow.get(\"contador\"));\nlet sigcorte = corte + 1;\nlet limite = Number(flow.get(\"total\"));\nlet objeto = flow.get(\"carga\")\nlet numpisci = Number(flow.get(\"piscinita\"));\n\n\nflow.set(\"mysqlNombre\",msg.payload[corte].Nombre);\nflow.set(\"mysqlApellido\",msg.payload[corte].Apellido);\nflow.set(\"mysqlAlerta\",msg.payload[corte].Alerta);\nflow.set(\"mysqlAlarma\",msg.payload[corte].Alarma);\nflow.set(\"mysqlCorreo\",msg.payload[corte].Correo);\nflow.set(\"mysqlTelefono\",msg.payload[corte].Telefono); \n    \nconst piscinanumber = String(numpisci);\nnombre = String(flow.get(\"mysqlNombre\"));\napellido = String(flow.get(\"mysqlApellido\"));\ncorreo = String(flow.get(\"mysqlCorreo\"));\nlet nuevafecha= new Date().toLocaleString();\ntitulo = \"Alarma de relé térmico\" + nuevafecha;\nmensaje = \"¡Alarma!¡Emergencia!\\nEstimado \"+nombre+\" \"+apellido+\", \\n\"+\n\"Se le informa que se ha detectado que el relé térmico de la piscina \"\n+piscinanumber+\" presenta novedades, requiere de urgente revisión.\"\n\nmsg = {payload: mensaje, to: correo, topic: titulo};\nmsg.conteo = sigcorte;\nmsg.numeritos = limite;\nmsg.payloadsig = objeto;\nmsg.piscinaalarma2 = numpisci;\n\nreturn msg;\n\n",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1730,
+        "y": 600,
+        "wires": [
+            [
+                "8cfc64044a1283ec",
+                "ea7d382d0d3df6a8"
+            ]
+        ]
+    },
+    {
+        "id": "6a6ca3969608c323",
+        "type": "function",
+        "z": "2e2fa0d633e30fc9",
+        "name": "Actualizar tlnotificaciones 1",
+        "func": "\nflow.set(\"carga\", msg.payload);\nlet arrayObjetos = flow.get(\"carga\")\nlet cantcorreos = arrayObjetos.length;\nlet piscinaalertareg = String(msg.piscinaalerta);\nlet registrotipo = \"Alerta_\"+piscinaalertareg;\nlet nombreini = String(arrayObjetos[0].Nombre);\nlet apellidoini = String(arrayObjetos[0].Apellido);\nlet nombres = nombreini.slice(0,1)+\". \"+apellidoini;\n\nfor (i=1;i<= cantcorreos -1 ;i++){\n    nombre1 = arrayObjetos[i].Nombre;\n    nombre = nombre1.toString();\n    apellido1 = arrayObjetos[i].Apellido;\n    apellido = apellido1.toString();\n    nombrecompleto = nombre.slice(0,1)+\". \"+apellido;\n    nombres = nombres+\", \"+nombrecompleto; \n}\n\nlet nuevafecha= new Date().toLocaleString();\n\n\nmsg.topic = \"INSERT INTO tlnotificaciones(Fecha, Tipo, Operador) \"+\n\"VALUES ('\"+nuevafecha+\"', '\"+registrotipo+\"', '\"+nombres+\"') ;\";\n\nreturn msg;\n\n",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1740,
+        "y": 320,
+        "wires": [
+            [
+                "0745512a8c9d40e5"
+            ]
+        ]
+    },
+    {
+        "id": "2aafd7532db1bdaa",
+        "type": "function",
+        "z": "2e2fa0d633e30fc9",
+        "name": "Actualizar tlnotificaciones 2",
+        "func": "\nflow.set(\"carga\", msg.payload);\nlet arrayObjetos = flow.get(\"carga\")\nlet cantcorreos = arrayObjetos.length;\nlet piscinaalarma1reg = String(msg.piscinaalarma1);\nlet registrotipo = \"Alarma1_\"+piscinaalarma1reg;\nlet nombreini = String(arrayObjetos[0].Nombre);\nlet apellidoini = String(arrayObjetos[0].Apellido);\nlet nombres = nombreini.slice(0,1)+\". \"+apellidoini;\n\nfor (i=1;i<= cantcorreos -1 ;i++){\n    nombre1 = arrayObjetos[i].Nombre;\n    nombre = nombre1.toString();\n    apellido1 = arrayObjetos[i].Apellido;\n    apellido = apellido1.toString();\n    nombrecompleto = nombre.slice(0,1)+\". \"+apellido;\n    nombres = nombres+\", \"+nombrecompleto; \n}\n\nlet nuevafecha= new Date().toLocaleString();\n\n\nmsg.topic = \"INSERT INTO tlnotificaciones(Fecha, Tipo, Operador) \"+\n\"VALUES ('\"+nuevafecha+\"', '\"+registrotipo+\"', '\"+nombres+\"') ;\";\n\nreturn msg;\n",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1740,
+        "y": 500,
+        "wires": [
+            [
+                "0745512a8c9d40e5"
+            ]
+        ]
+    },
+    {
+        "id": "54d781f9b9c938f1",
+        "type": "function",
+        "z": "2e2fa0d633e30fc9",
+        "name": "Actualizar tlnotificaciones 3",
+        "func": "\nflow.set(\"carga\", msg.payload);\nlet arrayObjetos = flow.get(\"carga\")\nlet cantcorreos = arrayObjetos.length;\nlet piscinaalarma2reg = String(msg.piscinaalarma2);\nlet registrotipo = \"Alarma2_\"+piscinaalarma2reg;\nlet nombreini = String(arrayObjetos[0].Nombre);\nlet apellidoini = String(arrayObjetos[0].Apellido);\nlet nombres = nombreini.slice(0,1)+\". \"+apellidoini;\n\nfor (i=1;i<= cantcorreos -1 ;i++){\n    nombre1 = arrayObjetos[i].Nombre;\n    nombre = nombre1.toString();\n    apellido1 = arrayObjetos[i].Apellido;\n    apellido = apellido1.toString();\n    nombrecompleto = nombre.slice(0,1)+\". \"+apellido;\n    nombres = nombres+\", \"+nombrecompleto; \n}\n\nlet nuevafecha= new Date().toLocaleString();\n\n\nmsg.topic = \"INSERT INTO tlnotificaciones(Fecha, Tipo, Operador) \"+\n\"VALUES ('\"+nuevafecha+\"', '\"+registrotipo+\"', '\"+nombres+\"') ;\";\n\nreturn msg;\n",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1740,
+        "y": 700,
+        "wires": [
+            [
+                "0745512a8c9d40e5"
+            ]
+        ]
+    },
+    {
+        "id": "b71400f208bd6d07",
+        "type": "delay",
+        "z": "2e2fa0d633e30fc9",
+        "name": "",
+        "pauseType": "delay",
+        "timeout": "500",
+        "timeoutUnits": "milliseconds",
+        "rate": "1",
+        "nbRateUnits": "1",
+        "rateUnits": "second",
+        "randomFirst": "1",
+        "randomLast": "5",
+        "randomUnits": "seconds",
+        "drop": false,
+        "allowrate": false,
+        "outputs": 1,
+        "x": 790,
+        "y": 400,
+        "wires": [
+            [
+                "9bba6d6d07ba378a",
+                "6f35ad22b24b0a13",
+                "6c99b224277ff472",
+                "905ff10fe9fdd00b"
+            ]
+        ]
+    },
+    {
+        "id": "bbddea5fee3260ad",
+        "type": "ui_button",
+        "z": "2e2fa0d633e30fc9",
+        "name": "Generar reporte",
+        "group": "fb1ccea75cb8fa26",
+        "order": 11,
+        "width": 6,
+        "height": 1,
+        "passthru": false,
+        "label": "Generar reporte",
+        "tooltip": "",
+        "color": "",
+        "bgcolor": "",
+        "className": "",
+        "icon": "",
+        "payload": "generar",
+        "payloadType": "str",
+        "topic": "activargenerar",
+        "topicType": "str",
+        "x": 2780,
+        "y": 920,
+        "wires": [
+            [
+                "a3aebe5a51efc827"
+            ]
+        ]
+    },
+    {
+        "id": "3a8aad8fa02a6768",
+        "type": "mysql",
+        "z": "2e2fa0d633e30fc9",
+        "mydb": "ef0cb22a29208031",
+        "name": "",
+        "x": 3880,
+        "y": 1140,
+        "wires": [
+            [
+                "10cc0e60c53365ac"
+            ]
+        ]
+    },
+    {
+        "id": "10cc0e60c53365ac",
+        "type": "delay",
+        "z": "2e2fa0d633e30fc9",
+        "name": "",
+        "pauseType": "delay",
+        "timeout": "500",
+        "timeoutUnits": "milliseconds",
+        "rate": "1",
+        "nbRateUnits": "1",
+        "rateUnits": "second",
+        "randomFirst": "1",
+        "randomLast": "5",
+        "randomUnits": "seconds",
+        "drop": false,
+        "allowrate": false,
+        "outputs": 1,
+        "x": 4070,
+        "y": 1140,
+        "wires": [
+            [
+                "a3b861a6f564f5c1",
+                "d91349b870422fae",
+                "cae18bd56eebe7f9"
+            ]
+        ]
+    },
+    {
+        "id": "ee6ea5eb0c4b87fe",
+        "type": "debug",
+        "z": "2e2fa0d633e30fc9",
+        "name": "debug 1",
+        "active": false,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload[0]",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 780,
+        "y": 520,
+        "wires": []
+    },
+    {
+        "id": "d271660b13bf24f7",
+        "type": "function",
+        "z": "2e2fa0d633e30fc9",
+        "name": "Set Contador",
+        "func": "let numerito = msg.payload.length;\nmsg.numeritos = numerito-1;\nmsg.conteo = 0;\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1370,
+        "y": 280,
+        "wires": [
+            [
+                "0a6f75547d4b0edb",
+                "6a6ca3969608c323"
+            ]
+        ]
+    },
+    {
+        "id": "f14dfa4b8cf70262",
+        "type": "switch",
+        "z": "2e2fa0d633e30fc9",
+        "name": "",
+        "property": "conteo",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "lte",
+                "v": "numeritos",
+                "vt": "msg"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 1,
+        "x": 1870,
+        "y": 280,
+        "wires": [
+            [
+                "0a6f75547d4b0edb"
+            ]
+        ]
+    },
+    {
+        "id": "db0296da93383155",
+        "type": "function",
+        "z": "2e2fa0d633e30fc9",
+        "name": "Retorno 2",
+        "func": "\nflow.set(\"contador\",msg.conteo);\nflow.set(\"total\",msg.numeritos);\nflow.set(\"carga\",msg.payloadsig);\nflow.set(\"piscinita\",msg.piscinaalarma1);\n\nlet corte = Number(flow.get(\"contador\"));\nlet sigcorte = corte;\nlet limite = Number(flow.get(\"total\"));\nlet objeto = flow.get(\"carga\")\nlet numpisci = Number(\"piscinita\");\n\nmsg.conteo = sigcorte;\nmsg.numeritos = limite;\nmsg.payload = objeto;\nmsg.piscinaalarma1 = numpisci;\n\nreturn msg;\n\n",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1580,
+        "y": 280,
+        "wires": [
+            [
+                "790063de21eed406"
+            ]
+        ]
+    },
+    {
+        "id": "790063de21eed406",
+        "type": "delay",
+        "z": "2e2fa0d633e30fc9",
+        "name": "",
+        "pauseType": "delay",
+        "timeout": "500",
+        "timeoutUnits": "milliseconds",
+        "rate": "1",
+        "nbRateUnits": "1",
+        "rateUnits": "second",
+        "randomFirst": "1",
+        "randomLast": "5",
+        "randomUnits": "seconds",
+        "drop": false,
+        "allowrate": false,
+        "outputs": 1,
+        "x": 1730,
+        "y": 280,
+        "wires": [
+            [
+                "f14dfa4b8cf70262"
+            ]
+        ]
+    },
+    {
+        "id": "268b19c3700d86db",
+        "type": "function",
+        "z": "2e2fa0d633e30fc9",
+        "name": "Set Contador",
+        "func": "let numerito = msg.payload.length;\nmsg.numeritos = numerito-1;\nmsg.conteo = 0;\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1370,
+        "y": 460,
+        "wires": [
+            [
+                "8d3abb17541c5495",
+                "2aafd7532db1bdaa"
+            ]
+        ]
+    },
+    {
+        "id": "ff339b17a80ff91e",
+        "type": "function",
+        "z": "2e2fa0d633e30fc9",
+        "name": "Set Contador",
+        "func": "let numerito = msg.payload.length;\nmsg.numeritos = numerito-1;\nmsg.conteo = 0;\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1370,
+        "y": 700,
+        "wires": [
+            [
+                "e4c5f1e1b1e92d48",
+                "54d781f9b9c938f1"
+            ]
+        ]
+    },
+    {
+        "id": "5b44f5d24f2ed2be",
+        "type": "switch",
+        "z": "2e2fa0d633e30fc9",
+        "name": "",
+        "property": "conteo",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "lte",
+                "v": "numeritos",
+                "vt": "msg"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 1,
+        "x": 1870,
+        "y": 460,
+        "wires": [
+            [
+                "8d3abb17541c5495"
+            ]
+        ]
+    },
+    {
+        "id": "469dc5b16f65b606",
+        "type": "function",
+        "z": "2e2fa0d633e30fc9",
+        "name": "Retorno 3",
+        "func": "\nflow.set(\"contador\",msg.conteo);\nflow.set(\"total\",msg.numeritos);\nflow.set(\"carga\",msg.payloadsig);\nflow.set(\"piscinita\",msg.piscinaalerta);\n\nlet corte = Number(flow.get(\"contador\"));\nlet sigcorte = corte;\nlet limite = Number(flow.get(\"total\"));\nlet objeto = flow.get(\"carga\")\nlet numpisci = Number(\"piscinita\");\n\nmsg.conteo = sigcorte;\nmsg.numeritos = limite;\nmsg.payload = objeto;\nmsg.piscinaalerta = numpisci;\n\nreturn msg;\n\n",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1580,
+        "y": 460,
+        "wires": [
+            [
+                "e8c2f6548a2f8049"
+            ]
+        ]
+    },
+    {
+        "id": "e8c2f6548a2f8049",
+        "type": "delay",
+        "z": "2e2fa0d633e30fc9",
+        "name": "",
+        "pauseType": "delay",
+        "timeout": "10",
+        "timeoutUnits": "seconds",
+        "rate": "1",
+        "nbRateUnits": "1",
+        "rateUnits": "second",
+        "randomFirst": "1",
+        "randomLast": "5",
+        "randomUnits": "seconds",
+        "drop": false,
+        "allowrate": false,
+        "outputs": 1,
+        "x": 1720,
+        "y": 460,
+        "wires": [
+            [
+                "5b44f5d24f2ed2be"
+            ]
+        ]
+    },
+    {
+        "id": "ccc03dae6511c2d2",
+        "type": "switch",
+        "z": "2e2fa0d633e30fc9",
+        "name": "",
+        "property": "conteo",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "lte",
+                "v": "numeritos",
+                "vt": "msg"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 1,
+        "x": 1870,
+        "y": 660,
+        "wires": [
+            [
+                "e4c5f1e1b1e92d48"
+            ]
+        ]
+    },
+    {
+        "id": "8cfc64044a1283ec",
+        "type": "function",
+        "z": "2e2fa0d633e30fc9",
+        "name": "Retorno 3",
+        "func": "\nflow.set(\"contador\",msg.conteo);\nflow.set(\"total\",msg.numeritos);\nflow.set(\"carga\",msg.payloadsig);\nflow.set(\"piscinita\",msg.piscinaalerta);\n\nlet corte = Number(flow.get(\"contador\"));\nlet sigcorte = corte;\nlet limite = Number(flow.get(\"total\"));\nlet objeto = flow.get(\"carga\")\nlet numpisci = Number(\"piscinita\");\n\nmsg.conteo = sigcorte;\nmsg.numeritos = limite;\nmsg.payload = objeto;\nmsg.piscinaalerta = numpisci;\n\nreturn msg;\n\n",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1580,
+        "y": 660,
+        "wires": [
+            [
+                "d77b919b58642108"
+            ]
+        ]
+    },
+    {
+        "id": "d77b919b58642108",
+        "type": "delay",
+        "z": "2e2fa0d633e30fc9",
+        "name": "",
+        "pauseType": "delay",
+        "timeout": "500",
+        "timeoutUnits": "milliseconds",
+        "rate": "1",
+        "nbRateUnits": "1",
+        "rateUnits": "second",
+        "randomFirst": "1",
+        "randomLast": "5",
+        "randomUnits": "seconds",
+        "drop": false,
+        "allowrate": false,
+        "outputs": 1,
+        "x": 1730,
+        "y": 660,
+        "wires": [
+            [
+                "ccc03dae6511c2d2"
+            ]
+        ]
+    },
+    {
+        "id": "ea7d382d0d3df6a8",
+        "type": "e-mail",
+        "z": "2e2fa0d633e30fc9",
+        "server": "smtp.gmail.com",
+        "port": "465",
+        "secure": true,
+        "tls": true,
+        "name": "",
+        "dname": "",
+        "x": 2230,
+        "y": 460,
+        "wires": []
+    },
+    {
+        "id": "08483df4171f56cb",
+        "type": "ui_text_input",
+        "z": "2e2fa0d633e30fc9",
+        "name": "",
+        "label": "Nombre",
+        "tooltip": "",
+        "group": "89224715577891b5",
+        "order": 7,
+        "width": 6,
+        "height": 1,
+        "passthru": true,
+        "mode": "text",
+        "delay": "500",
+        "topic": "firstname",
+        "sendOnBlur": true,
+        "className": "",
+        "topicType": "str",
+        "x": 2760,
+        "y": 320,
+        "wires": [
+            [
+                "672d8766937ddc1e"
+            ]
+        ]
+    },
+    {
+        "id": "fdeb8cc7dc7d54a5",
+        "type": "ui_text_input",
+        "z": "2e2fa0d633e30fc9",
+        "name": "",
+        "label": "Apellido",
+        "tooltip": "",
+        "group": "89224715577891b5",
+        "order": 10,
+        "width": 6,
+        "height": 1,
+        "passthru": true,
+        "mode": "text",
+        "delay": "500",
+        "topic": "lastname",
+        "sendOnBlur": true,
+        "className": "",
+        "topicType": "str",
+        "x": 2760,
+        "y": 360,
+        "wires": [
+            [
+                "672d8766937ddc1e"
+            ]
+        ]
+    },
+    {
+        "id": "df1534137af545c7",
+        "type": "ui_text_input",
+        "z": "2e2fa0d633e30fc9",
+        "name": "",
+        "label": "Correo",
+        "tooltip": "",
+        "group": "89224715577891b5",
+        "order": 19,
+        "width": 6,
+        "height": 1,
+        "passthru": true,
+        "mode": "email",
+        "delay": "500",
+        "topic": "correo",
+        "sendOnBlur": true,
+        "className": "",
+        "topicType": "str",
+        "x": 2750,
+        "y": 480,
+        "wires": [
+            [
+                "672d8766937ddc1e"
+            ]
+        ]
+    },
+    {
+        "id": "f95abf7fbb5fbaf9",
+        "type": "ui_text_input",
+        "z": "2e2fa0d633e30fc9",
+        "name": "",
+        "label": "Teléfono",
+        "tooltip": "",
+        "group": "89224715577891b5",
+        "order": 22,
+        "width": 6,
+        "height": 1,
+        "passthru": true,
+        "mode": "tel",
+        "delay": "500",
+        "topic": "telefono",
+        "sendOnBlur": true,
+        "className": "",
+        "topicType": "str",
+        "x": 2760,
+        "y": 520,
+        "wires": [
+            [
+                "672d8766937ddc1e"
+            ]
+        ]
+    },
+    {
+        "id": "9f08dfd34af92018",
+        "type": "ui_button",
+        "z": "2e2fa0d633e30fc9",
+        "name": "",
+        "group": "89224715577891b5",
+        "order": 26,
+        "width": 6,
+        "height": 1,
+        "passthru": false,
+        "label": "Insertar usuario",
+        "tooltip": "",
+        "color": "",
+        "bgcolor": "",
+        "className": "",
+        "icon": "",
+        "payload": "insertar",
+        "payloadType": "str",
+        "topic": "activarinsertar",
+        "topicType": "str",
+        "x": 2780,
+        "y": 560,
+        "wires": [
+            [
+                "672d8766937ddc1e"
+            ]
+        ]
+    },
+    {
+        "id": "672d8766937ddc1e",
+        "type": "join",
+        "z": "2e2fa0d633e30fc9",
+        "name": "Unión insertar usuario",
+        "mode": "custom",
+        "build": "object",
+        "property": "payload",
+        "propertyType": "msg",
+        "key": "topic",
+        "joiner": "\\n",
+        "joinerType": "str",
+        "accumulate": false,
+        "timeout": "",
+        "count": "7",
+        "reduceRight": false,
+        "reduceExp": "",
+        "reduceInit": "",
+        "reduceInitType": "num",
+        "reduceFixup": "",
+        "x": 3120,
+        "y": 440,
+        "wires": [
+            [
+                "5c9ca9ac316bc5e2"
+            ]
+        ]
+    },
+    {
+        "id": "e546720d6df900bb",
+        "type": "ui_button",
+        "z": "2e2fa0d633e30fc9",
+        "name": "",
+        "group": "e16130bc3ab476b8",
+        "order": 4,
+        "width": 6,
+        "height": 1,
+        "passthru": false,
+        "label": "Resumen",
+        "tooltip": "",
+        "color": "",
+        "bgcolor": "",
+        "className": "",
+        "icon": "",
+        "payload": "{\"group\":{\"hide\":[\"SmartFilling_MenuPrincipal\",\"SmartFilling_Consultarestatuspiscina\",\"SmartFilling_Notificaciones\",\"SmartFilling_Insertarnuevousuario\",\"SmartFilling_Insertarnuevastolvas\",\"SmartFilling_Restaurarestatuspiscina\"],\"show\":[\"SmartFilling_General\"]}}",
+        "payloadType": "json",
+        "topic": "topic",
+        "topicType": "msg",
+        "x": 760,
+        "y": 1100,
+        "wires": [
+            [
+                "9cc055e6f9df0dbd"
+            ]
+        ]
+    },
+    {
+        "id": "9d0be6a1a63709d0",
+        "type": "ui_button",
+        "z": "2e2fa0d633e30fc9",
+        "name": "",
+        "group": "e16130bc3ab476b8",
+        "order": 7,
+        "width": 6,
+        "height": 1,
+        "passthru": false,
+        "label": "Reporte tolvas",
+        "tooltip": "",
+        "color": "",
+        "bgcolor": "",
+        "className": "",
+        "icon": "",
+        "payload": "{\"group\":{\"hide\":[\"SmartFilling_MenuPrincipal\",\"SmartFilling_Notificaciones\",\"SmartFilling_Insertarnuevousuario\",\"SmartFilling_Insertarnuevastolvas\",\"SmartFilling_Restaurarestatuspiscina\",\"SmartFilling_General\"],\"show\":[\"SmartFilling_Consultarestatuspiscina\"]}}",
+        "payloadType": "json",
+        "topic": "topic",
+        "topicType": "msg",
+        "x": 780,
+        "y": 1160,
+        "wires": [
+            [
+                "9cc055e6f9df0dbd"
+            ]
+        ]
+    },
+    {
+        "id": "fbaabf7867732248",
+        "type": "ui_button",
+        "z": "2e2fa0d633e30fc9",
+        "name": "",
+        "group": "e16130bc3ab476b8",
+        "order": 10,
+        "width": 6,
+        "height": 1,
+        "passthru": false,
+        "label": "Reporte notificaciones",
+        "tooltip": "",
+        "color": "",
+        "bgcolor": "",
+        "className": "",
+        "icon": "",
+        "payload": "{\"group\":{\"hide\":[\"SmartFilling_Consultarestatuspiscina\",\"SmartFilling_MenuPrincipal\",\"SmartFilling_Insertarnuevousuario\",\"SmartFilling_Insertarnuevastolvas\",\"SmartFilling_Restaurarestatuspiscina\",\"SmartFilling_General\"],\"show\":[\"SmartFilling_Notificaciones\"]}}",
+        "payloadType": "json",
+        "topic": "topic",
+        "topicType": "msg",
+        "x": 800,
+        "y": 1200,
+        "wires": [
+            [
+                "9cc055e6f9df0dbd"
+            ]
+        ]
+    },
+    {
+        "id": "06a9f8bc53280597",
+        "type": "ui_button",
+        "z": "2e2fa0d633e30fc9",
+        "name": "",
+        "group": "e16130bc3ab476b8",
+        "order": 13,
+        "width": 6,
+        "height": 1,
+        "passthru": false,
+        "label": "Insertar usuario",
+        "tooltip": "",
+        "color": "",
+        "bgcolor": "",
+        "className": "",
+        "icon": "",
+        "payload": "{\"group\":{\"hide\":[\"SmartFilling_Consultarestatuspiscina\",\"SmartFilling_Notificaciones\",\"SmartFilling_MenuPrincipal\",\"SmartFilling_Insertarnuevastolvas\",\"SmartFilling_Restaurarestatuspiscina\",\"SmartFilling_General\"],\"show\":[\"SmartFilling_Insertarnuevousuario\"]}}",
+        "payloadType": "json",
+        "topic": "topic",
+        "topicType": "msg",
+        "x": 780,
+        "y": 1240,
+        "wires": [
+            [
+                "9cc055e6f9df0dbd"
+            ]
+        ]
+    },
+    {
+        "id": "75bac8e477c33500",
+        "type": "ui_button",
+        "z": "2e2fa0d633e30fc9",
+        "name": "",
+        "group": "e16130bc3ab476b8",
+        "order": 16,
+        "width": 6,
+        "height": 1,
+        "passthru": false,
+        "label": "Insertar tolva",
+        "tooltip": "",
+        "color": "",
+        "bgcolor": "",
+        "className": "",
+        "icon": "",
+        "payload": "{\"group\":{\"hide\":[\"SmartFilling_Consultarestatuspiscina\",\"SmartFilling_Notificaciones\",\"SmartFilling_Insertarnuevousuario\",\"SmartFilling_MenuPrincipal\",\"SmartFilling_Restaurarestatuspiscina\",\"SmartFilling_General\"],\"show\":[\"SmartFilling_Insertarnuevastolvas\"]}}",
+        "payloadType": "json",
+        "topic": "topic",
+        "topicType": "msg",
+        "x": 770,
+        "y": 1280,
+        "wires": [
+            [
+                "9cc055e6f9df0dbd"
+            ]
+        ]
+    },
+    {
+        "id": "d3acb6ceedc8a9c1",
+        "type": "ui_button",
+        "z": "2e2fa0d633e30fc9",
+        "name": "",
+        "group": "e16130bc3ab476b8",
+        "order": 19,
+        "width": 6,
+        "height": 1,
+        "passthru": false,
+        "label": "Restaurar piscina",
+        "tooltip": "",
+        "color": "",
+        "bgcolor": "",
+        "className": "",
+        "icon": "",
+        "payload": "{\"group\":{\"hide\":[\"SmartFilling_Consultarestatuspiscina\",\"SmartFilling_Notificaciones\",\"SmartFilling_Insertarnuevousuario\",\"SmartFilling_MenuPrincipal\",\"SmartFilling_Insertarnuevastolvas\",\"SmartFilling_General\"],\"show\":[\"SmartFilling_Restaurarestatuspiscina\"]}}",
+        "payloadType": "json",
+        "topic": "topic",
+        "topicType": "msg",
+        "x": 790,
+        "y": 1320,
+        "wires": [
+            [
+                "9cc055e6f9df0dbd"
+            ]
+        ]
+    },
+    {
+        "id": "9cc055e6f9df0dbd",
+        "type": "ui_ui_control",
+        "z": "2e2fa0d633e30fc9",
+        "name": "",
+        "events": "all",
+        "x": 1460,
+        "y": 1440,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "c127afd3de69608d",
+        "type": "ui_button",
+        "z": "2e2fa0d633e30fc9",
+        "name": "MP1",
+        "group": "cdc198e47f49d685",
+        "order": 1,
+        "width": 3,
+        "height": 1,
+        "passthru": false,
+        "label": "Menú Principal",
+        "tooltip": "",
+        "color": "",
+        "bgcolor": "#808080",
+        "className": "",
+        "icon": "",
+        "payload": "{\"group\":{\"hide\":[\"SmartFilling_Insertarnuevastolvas\",\"SmartFilling_Consultarestatuspiscina\",\"SmartFilling_Notificaciones\",\"SmartFilling_Insertarnuevousuario\",\"SmartFilling_General\",\"SmartFilling_Restaurarestatuspiscina\"],\"show\":[\"SmartFilling_MenuPrincipal\"]}}",
+        "payloadType": "json",
+        "topic": "topic",
+        "topicType": "msg",
+        "x": 750,
+        "y": 1380,
+        "wires": [
+            [
+                "9cc055e6f9df0dbd"
+            ]
+        ]
+    },
+    {
+        "id": "97b96862cc534bfb",
+        "type": "ui_button",
+        "z": "2e2fa0d633e30fc9",
+        "name": "MP3",
+        "group": "b538bc258877ec22",
+        "order": 1,
+        "width": 3,
+        "height": 1,
+        "passthru": false,
+        "label": "Menú Principal",
+        "tooltip": "",
+        "color": "",
+        "bgcolor": "#808080",
+        "className": "",
+        "icon": "",
+        "payload": "{\"group\":{\"hide\":[\"SmartFilling_Insertarnuevastolvas\",\"SmartFilling_Consultarestatuspiscina\",\"SmartFilling_Notificaciones\",\"SmartFilling_Insertarnuevousuario\",\"SmartFilling_General\",\"SmartFilling_Restaurarestatuspiscina\"],\"show\":[\"SmartFilling_MenuPrincipal\"]}}",
+        "payloadType": "json",
+        "topic": "topic",
+        "topicType": "msg",
+        "x": 750,
+        "y": 1460,
+        "wires": [
+            [
+                "9cc055e6f9df0dbd"
+            ]
+        ]
+    },
+    {
+        "id": "7c1e60c27a014326",
+        "type": "ui_button",
+        "z": "2e2fa0d633e30fc9",
+        "name": "MP2",
+        "group": "fb1ccea75cb8fa26",
+        "order": 1,
+        "width": 3,
+        "height": 1,
+        "passthru": false,
+        "label": "Menú Principal",
+        "tooltip": "",
+        "color": "",
+        "bgcolor": "#808080",
+        "className": "",
+        "icon": "",
+        "payload": "{\"group\":{\"hide\":[\"SmartFilling_Insertarnuevastolvas\",\"SmartFilling_Consultarestatuspiscina\",\"SmartFilling_Notificaciones\",\"SmartFilling_Insertarnuevousuario\",\"SmartFilling_General\",\"SmartFilling_Restaurarestatuspiscina\"],\"show\":[\"SmartFilling_MenuPrincipal\"]}}",
+        "payloadType": "json",
+        "topic": "topic",
+        "topicType": "msg",
+        "x": 750,
+        "y": 1420,
+        "wires": [
+            [
+                "9cc055e6f9df0dbd"
+            ]
+        ]
+    },
+    {
+        "id": "c9d4006baf749f50",
+        "type": "ui_button",
+        "z": "2e2fa0d633e30fc9",
+        "name": "MP4",
+        "group": "89224715577891b5",
+        "order": 1,
+        "width": 3,
+        "height": 1,
+        "passthru": false,
+        "label": "Menú Principal",
+        "tooltip": "",
+        "color": "",
+        "bgcolor": "#808080",
+        "className": "",
+        "icon": "",
+        "payload": "{\"group\":{\"hide\":[\"SmartFilling_Insertarnuevastolvas\",\"SmartFilling_Consultarestatuspiscina\",\"SmartFilling_Notificaciones\",\"SmartFilling_Insertarnuevousuario\",\"SmartFilling_General\",\"SmartFilling_Restaurarestatuspiscina\"],\"show\":[\"SmartFilling_MenuPrincipal\"]}}",
+        "payloadType": "json",
+        "topic": "topic",
+        "topicType": "msg",
+        "x": 750,
+        "y": 1500,
+        "wires": [
+            [
+                "9cc055e6f9df0dbd"
+            ]
+        ]
+    },
+    {
+        "id": "a408494e29a58571",
+        "type": "ui_button",
+        "z": "2e2fa0d633e30fc9",
+        "name": "MP6",
+        "group": "15b991c9ebc281ee",
+        "order": 1,
+        "width": 3,
+        "height": 1,
+        "passthru": false,
+        "label": "Menú Principal",
+        "tooltip": "",
+        "color": "",
+        "bgcolor": "#808080",
+        "className": "",
+        "icon": "",
+        "payload": "{\"group\":{\"hide\":[\"SmartFilling_Insertarnuevastolvas\",\"SmartFilling_Consultarestatuspiscina\",\"SmartFilling_Notificaciones\",\"SmartFilling_Insertarnuevousuario\",\"SmartFilling_General\",\"SmartFilling_Restaurarestatuspiscina\"],\"show\":[\"SmartFilling_MenuPrincipal\"]}}",
+        "payloadType": "json",
+        "topic": "topic",
+        "topicType": "msg",
+        "x": 750,
+        "y": 1580,
+        "wires": [
+            [
+                "9cc055e6f9df0dbd"
+            ]
+        ]
+    },
+    {
+        "id": "d8baf76219576d4a",
+        "type": "ui_button",
+        "z": "2e2fa0d633e30fc9",
+        "name": "MP5",
+        "group": "c4d128cbe99ef29c",
+        "order": 1,
+        "width": 3,
+        "height": 1,
+        "passthru": false,
+        "label": "Menú Principal",
+        "tooltip": "",
+        "color": "",
+        "bgcolor": "#808080",
+        "className": "",
+        "icon": "",
+        "payload": "{\"group\":{\"hide\":[\"SmartFilling_Insertarnuevastolvas\",\"SmartFilling_Consultarestatuspiscina\",\"SmartFilling_Notificaciones\",\"SmartFilling_Insertarnuevousuario\",\"SmartFilling_General\",\"SmartFilling_Restaurarestatuspiscina\"],\"show\":[\"SmartFilling_MenuPrincipal\"]}}",
+        "payloadType": "json",
+        "topic": "topic",
+        "topicType": "msg",
+        "x": 750,
+        "y": 1540,
+        "wires": [
+            [
+                "9cc055e6f9df0dbd"
+            ]
+        ]
+    },
+    {
+        "id": "15cf4100337202d6",
+        "type": "ui_table",
+        "z": "2e2fa0d633e30fc9",
+        "group": "cdc198e47f49d685",
+        "name": "Tolvas llenadas recientemente",
+        "order": 9,
+        "width": 14,
+        "height": 11,
+        "columns": [
+            {
+                "field": "Fecha",
+                "title": "Fecha y hora",
+                "width": "32%",
+                "align": "left",
+                "formatter": "plaintext",
+                "formatterParams": {
+                    "target": "_blank"
+                }
+            },
+            {
+                "field": "Piscina",
+                "title": "Pisicina",
+                "width": "17%",
+                "align": "left",
+                "formatter": "plaintext",
+                "formatterParams": {
+                    "target": "_blank"
+                }
+            },
+            {
+                "field": "Tolva",
+                "title": "Tolva",
+                "width": "17%",
+                "align": "left",
+                "formatter": "plaintext",
+                "formatterParams": {
+                    "target": "_blank"
+                }
+            },
+            {
+                "field": "Llenada",
+                "title": "Rellenadas",
+                "width": "17%",
+                "align": "left",
+                "formatter": "plaintext",
+                "formatterParams": {
+                    "target": "_blank"
+                }
+            },
+            {
+                "field": "IDTolva",
+                "title": "ID",
+                "width": "17%",
+                "align": "left",
+                "formatter": "plaintext",
+                "formatterParams": {
+                    "target": "_blank"
+                }
+            }
+        ],
+        "outputs": 0,
+        "cts": false,
+        "x": 3970,
+        "y": 2100,
+        "wires": []
+    },
+    {
+        "id": "25de3aa03435f75d",
+        "type": "inject",
+        "z": "2e2fa0d633e30fc9",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "10",
+        "crontab": "",
+        "once": true,
+        "onceDelay": "0,1",
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 2770,
+        "y": 2100,
+        "wires": [
+            [
+                "865ceb3f19aca7ac",
+                "bc92f123919def5c"
+            ]
+        ]
+    },
+    {
+        "id": "84d2644a69c9a66a",
+        "type": "ui_table",
+        "z": "2e2fa0d633e30fc9",
+        "group": "cdc198e47f49d685",
+        "name": "Notificaciones recientes",
+        "order": 7,
+        "width": 11,
+        "height": 11,
+        "columns": [
+            {
+                "field": "Fecha",
+                "title": "Fecha y hora",
+                "width": "34%",
+                "align": "left",
+                "formatter": "plaintext",
+                "formatterParams": {
+                    "target": "_blank"
+                }
+            },
+            {
+                "field": "Tipo",
+                "title": "Tipo",
+                "width": "33%",
+                "align": "left",
+                "formatter": "plaintext",
+                "formatterParams": {
+                    "target": "_blank"
+                }
+            },
+            {
+                "field": "Operador",
+                "title": "Operadores",
+                "width": "",
+                "align": "left",
+                "formatter": "plaintext",
+                "formatterParams": {
+                    "target": "_blank"
+                }
+            }
+        ],
+        "outputs": 0,
+        "cts": false,
+        "x": 3990,
+        "y": 2140,
+        "wires": []
+    },
+    {
+        "id": "df20f6fceb782826",
+        "type": "function",
+        "z": "2e2fa0d633e30fc9",
+        "name": "Actualizar tlestado 2",
+        "func": "\nflow.set(\"mysqlIDTolva\",msg.payload[0].IDTolva);\n\nlet nuevafecha= new Date().toLocaleString();\nmsg.topic = \"update tlestado set Fecha ='\"+nuevafecha+\"' where IDTolva='\"+flow.get(\"mysqlIDTolva\")+\"';\";\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1760,
+        "y": 140,
+        "wires": [
+            [
+                "0745512a8c9d40e5"
+            ]
+        ]
+    },
+    {
+        "id": "e2b82ce0355a7c9c",
+        "type": "delay",
+        "z": "2e2fa0d633e30fc9",
+        "name": "",
+        "pauseType": "delay",
+        "timeout": "300",
+        "timeoutUnits": "milliseconds",
+        "rate": "1",
+        "nbRateUnits": "1",
+        "rateUnits": "second",
+        "randomFirst": "1",
+        "randomLast": "5",
+        "randomUnits": "seconds",
+        "drop": false,
+        "allowrate": false,
+        "outputs": 1,
+        "x": 1470,
+        "y": 140,
+        "wires": [
+            [
+                "df20f6fceb782826"
+            ]
+        ]
+    },
+    {
+        "id": "bc92f123919def5c",
+        "type": "function",
+        "z": "2e2fa0d633e30fc9",
+        "name": "Query para tolvas recientes",
+        "func": "msg.topic = \"select * from tlestado order by Fecha desc ;\"\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 3240,
+        "y": 2100,
+        "wires": [
+            [
+                "39085c5eb3562ad9"
+            ]
+        ]
+    },
+    {
+        "id": "d4ac770e58a64e46",
+        "type": "function",
+        "z": "2e2fa0d633e30fc9",
+        "name": "Query para notificaciones recientes",
+        "func": "msg.topic = \"select * from tlnotificaciones order by Fecha desc ;\"\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 3220,
+        "y": 2140,
+        "wires": [
+            [
+                "f1a2ba9eb06e8c24"
+            ]
+        ]
+    },
+    {
+        "id": "865ceb3f19aca7ac",
+        "type": "delay",
+        "z": "2e2fa0d633e30fc9",
+        "name": "",
+        "pauseType": "delay",
+        "timeout": "2500",
+        "timeoutUnits": "milliseconds",
+        "rate": "1",
+        "nbRateUnits": "1",
+        "rateUnits": "second",
+        "randomFirst": "1",
+        "randomLast": "5",
+        "randomUnits": "seconds",
+        "drop": false,
+        "allowrate": false,
+        "outputs": 1,
+        "x": 2960,
+        "y": 2140,
+        "wires": [
+            [
+                "d4ac770e58a64e46"
+            ]
+        ]
+    },
+    {
+        "id": "366dfab9b6272210",
+        "type": "function",
+        "z": "2e2fa0d633e30fc9",
+        "name": "Slice tlestado",
+        "func": "flow.set(\"mysqlTolvasRecientes\",msg.payload);\n\nlet arrtolvas = flow.get(\"mysqlTolvasRecientes\");\n\nmsg.payload = arrtolvas.slice(0,10);\nreturn msg;\n",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 3730,
+        "y": 2100,
+        "wires": [
+            [
+                "15cf4100337202d6"
+            ]
+        ]
+    },
+    {
+        "id": "1bb4cdf6d4eee63a",
+        "type": "function",
+        "z": "2e2fa0d633e30fc9",
+        "name": "Slice tlnotificaciones",
+        "func": "flow.set(\"mysqlNotificacionesRecientes\",msg.payload);\n\nlet arrnotificaciones = flow.get(\"mysqlNotificacionesRecientes\");\n\nmsg.payload = arrnotificaciones.slice(0,10);\nreturn msg;\n",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 3700,
+        "y": 2140,
+        "wires": [
+            [
+                "84d2644a69c9a66a"
+            ]
+        ]
+    },
+    {
+        "id": "39085c5eb3562ad9",
+        "type": "mysql",
+        "z": "2e2fa0d633e30fc9",
+        "mydb": "ef0cb22a29208031",
+        "name": "",
+        "x": 3480,
+        "y": 2100,
+        "wires": [
+            [
+                "366dfab9b6272210"
+            ]
+        ]
+    },
+    {
+        "id": "f1a2ba9eb06e8c24",
+        "type": "mysql",
+        "z": "2e2fa0d633e30fc9",
+        "mydb": "ef0cb22a29208031",
+        "name": "",
+        "x": 3480,
+        "y": 2140,
+        "wires": [
+            [
+                "1bb4cdf6d4eee63a"
+            ]
+        ]
+    },
+    {
+        "id": "397afca03780b19b",
+        "type": "ui_text",
+        "z": "2e2fa0d633e30fc9",
+        "group": "cdc198e47f49d685",
+        "order": 3,
+        "width": 11,
+        "height": 1,
+        "name": "",
+        "label": "Últimas notificaciones",
+        "format": "{{msg.payload}}",
+        "layout": "row-left",
+        "className": "",
+        "x": 2780,
+        "y": 2060,
+        "wires": []
+    },
+    {
+        "id": "1950cdb3243c0055",
+        "type": "ui_text",
+        "z": "2e2fa0d633e30fc9",
+        "group": "cdc198e47f49d685",
+        "order": 5,
+        "width": 13,
+        "height": 1,
+        "name": "",
+        "label": "Tolvas rellenadas recientemente",
+        "format": "{{msg.payload}}",
+        "layout": "row-left",
+        "className": "",
+        "x": 2810,
+        "y": 2020,
+        "wires": []
+    },
+    {
+        "id": "78d6e87149355711",
+        "type": "ui_button",
+        "z": "2e2fa0d633e30fc9",
+        "name": "",
+        "group": "c4d128cbe99ef29c",
+        "order": 14,
+        "width": 6,
+        "height": 1,
+        "passthru": false,
+        "label": "Insertar tolva",
+        "tooltip": "",
+        "color": "",
+        "bgcolor": "",
+        "className": "",
+        "icon": "",
+        "payload": "insertar",
+        "payloadType": "str",
+        "topic": "activarinsertar",
+        "topicType": "str",
+        "x": 2770,
+        "y": 760,
+        "wires": [
+            [
+                "4c04605b1db677a1"
+            ]
+        ]
+    },
+    {
+        "id": "af90e28bf1dc0e62",
+        "type": "ui_text_input",
+        "z": "2e2fa0d633e30fc9",
+        "name": "",
+        "label": "Piscina",
+        "tooltip": "",
+        "group": "c4d128cbe99ef29c",
+        "order": 7,
+        "width": 6,
+        "height": 1,
+        "passthru": true,
+        "mode": "text",
+        "delay": 300,
+        "topic": "piscina",
+        "sendOnBlur": true,
+        "className": "",
+        "topicType": "str",
+        "x": 2760,
+        "y": 680,
+        "wires": [
+            [
+                "4c04605b1db677a1"
+            ]
+        ]
+    },
+    {
+        "id": "7ce73f1bf8055b3e",
+        "type": "ui_text_input",
+        "z": "2e2fa0d633e30fc9",
+        "name": "",
+        "label": "Tolva",
+        "tooltip": "",
+        "group": "c4d128cbe99ef29c",
+        "order": 10,
+        "width": 6,
+        "height": 1,
+        "passthru": true,
+        "mode": "text",
+        "delay": 300,
+        "topic": "tolva",
+        "sendOnBlur": true,
+        "className": "",
+        "topicType": "str",
+        "x": 2750,
+        "y": 720,
+        "wires": [
+            [
+                "4c04605b1db677a1"
+            ]
+        ]
+    },
+    {
+        "id": "4c04605b1db677a1",
+        "type": "join",
+        "z": "2e2fa0d633e30fc9",
+        "name": "Unión insertar tolva",
+        "mode": "custom",
+        "build": "object",
+        "property": "payload",
+        "propertyType": "msg",
+        "key": "topic",
+        "joiner": "\\n",
+        "joinerType": "str",
+        "accumulate": false,
+        "timeout": "",
+        "count": "3",
+        "reduceRight": false,
+        "reduceExp": "",
+        "reduceInit": "",
+        "reduceInitType": "num",
+        "reduceFixup": "",
+        "x": 3130,
+        "y": 720,
+        "wires": [
+            [
+                "bccf7e208904fd07"
+            ]
+        ]
+    },
+    {
+        "id": "bccf7e208904fd07",
+        "type": "function",
+        "z": "2e2fa0d633e30fc9",
+        "name": "Insertar nueva tolva",
+        "func": "\nlet estanque = String(msg.payload.piscina);\nlet alimentador = String(msg.payload.tolva);\nlet idtolva = estanque+\"_\"+alimentador;\nlet fecha= new Date().toLocaleString();\nif (msg.payload.activarinsertar === \"insertar\"){\n   \n    msg.topic = \"INSERT INTO tlestado(Fecha,Piscina,Tolva,Llenada,IDTolva) \"\n    +\"VALUES ('\"+fecha+\"','\"+estanque+\"','\"+alimentador+\"','0','\"+idtolva+\"');\";\n    return msg;\n    \n}else{\n    \n}",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 3470,
+        "y": 720,
+        "wires": [
+            [
+                "3a8aad8fa02a6768"
+            ]
+        ]
+    },
+    {
+        "id": "65214e8251f1221a",
+        "type": "debug",
+        "z": "2e2fa0d633e30fc9",
+        "name": "debug 12",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 3000,
+        "y": 1520,
+        "wires": []
+    },
+    {
+        "id": "13cbc3f6d15a5610",
+        "type": "ui_dropdown",
+        "z": "2e2fa0d633e30fc9",
+        "name": "",
+        "label": "Alerta",
+        "tooltip": "",
+        "place": "Select option",
+        "group": "89224715577891b5",
+        "order": 13,
+        "width": 6,
+        "height": 1,
+        "passthru": true,
+        "multiple": false,
+        "options": [
+            {
+                "label": "Si",
+                "value": "Si",
+                "type": "str"
+            },
+            {
+                "label": "No",
+                "value": "No",
+                "type": "str"
+            }
+        ],
+        "payload": "",
+        "topic": "alerta",
+        "topicType": "str",
+        "className": "",
+        "x": 2750,
+        "y": 400,
+        "wires": [
+            [
+                "672d8766937ddc1e"
+            ]
+        ]
+    },
+    {
+        "id": "f6d746affb441785",
+        "type": "ui_dropdown",
+        "z": "2e2fa0d633e30fc9",
+        "name": "",
+        "label": "Alarma",
+        "tooltip": "",
+        "place": "Select option",
+        "group": "89224715577891b5",
+        "order": 16,
+        "width": 6,
+        "height": 1,
+        "passthru": true,
+        "multiple": false,
+        "options": [
+            {
+                "label": "Si",
+                "value": "Si",
+                "type": "str"
+            },
+            {
+                "label": "No",
+                "value": "No",
+                "type": "str"
+            }
+        ],
+        "payload": "",
+        "topic": "alarma",
+        "topicType": "str",
+        "className": "",
+        "x": 2760,
+        "y": 440,
+        "wires": [
+            [
+                "672d8766937ddc1e"
+            ]
+        ]
+    },
+    {
+        "id": "cd2d8bb23fd0c9f1",
+        "type": "ui_text_input",
+        "z": "2e2fa0d633e30fc9",
+        "name": "",
+        "label": "Correo",
+        "tooltip": "",
+        "group": "fb1ccea75cb8fa26",
+        "order": 7,
+        "width": 6,
+        "height": 1,
+        "passthru": true,
+        "mode": "email",
+        "delay": 300,
+        "topic": "correo",
+        "sendOnBlur": true,
+        "className": "",
+        "topicType": "str",
+        "x": 2750,
+        "y": 880,
+        "wires": [
+            [
+                "a3aebe5a51efc827"
+            ]
+        ]
+    },
+    {
+        "id": "a3aebe5a51efc827",
+        "type": "join",
+        "z": "2e2fa0d633e30fc9",
+        "name": "Unión generar reporte tolvas",
+        "mode": "custom",
+        "build": "object",
+        "property": "payload",
+        "propertyType": "msg",
+        "key": "topic",
+        "joiner": "\\n",
+        "joinerType": "str",
+        "accumulate": false,
+        "timeout": "",
+        "count": "2",
+        "reduceRight": false,
+        "reduceExp": "",
+        "reduceInit": "",
+        "reduceInitType": "num",
+        "reduceFixup": "",
+        "x": 3160,
+        "y": 900,
+        "wires": [
+            [
+                "5bbcd358de047d4e"
+            ]
+        ]
+    },
+    {
+        "id": "5bbcd358de047d4e",
+        "type": "function",
+        "z": "2e2fa0d633e30fc9",
+        "name": "Solicitar Reporte 1",
+        "func": "\nlet correoreporte = String(msg.payload.correo);\n\nif (msg.payload.activargenerar === \"generar\"){\n   \n    msg = {};\n    let fechahora= new Date().toLocaleString();\n    fechahora = fechahora.split(\"/\").join('_');\n    fechahora = fechahora.split(\":\").join('_');\n    msg.nombrearchivo = \"ReporteTolvas_\"+fechahora+\".txt\";\n    msg.topic = \"select Fecha,Piscina,Tolva,Llenada,IDTolva into outfile '\"\n    +msg.nombrearchivo+\"' fields terminated by ',' lines terminated by \" \n    +\"'\\n' from tlestado;\";\n    msg.correo = correoreporte;\n    msg.generarreporte1 = true;\n    return msg;\n    \n}else{\n    \n}",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 3480,
+        "y": 900,
+        "wires": [
+            [
+                "3a8aad8fa02a6768"
+            ]
+        ]
+    },
+    {
+        "id": "d91349b870422fae",
+        "type": "switch",
+        "z": "2e2fa0d633e30fc9",
+        "name": "Activar generar 1",
+        "property": "generarreporte1",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "true"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 1,
+        "x": 3870,
+        "y": 420,
+        "wires": [
+            [
+                "a1785360c8566ef2"
+            ]
+        ]
+    },
+    {
+        "id": "a1785360c8566ef2",
+        "type": "function",
+        "z": "2e2fa0d633e30fc9",
+        "name": "Construir correo reporte1",
+        "func": "\nlet destinatario = msg.correo;\nlet documento = msg.nombrearchivo;\nlet ubicacion = \"/var/lib/mysql/llenadotolvasdb/\"+documento;\nlet fecha = new Date().toLocaleString();\nlet tema = \"Smart Filling: Reporte del estatus de las tolvas (\"+fecha+\").\";\nlet mensaje = \"Saludos cordiales, \\nSe adjunta a este correo el reporte del\"+ \n\"estatus de las tolvas.\";\nmsg = { payload: mensaje, to: destinatario, topic: tema, attachments: {\n    filename: documento, path: ubicacion}\n}\nreturn msg;\n",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 4330,
+        "y": 420,
+        "wires": [
+            [
+                "5c0b2d7b6ab97846"
+            ]
+        ]
+    },
+    {
+        "id": "ba49781452e64755",
+        "type": "ui_button",
+        "z": "2e2fa0d633e30fc9",
+        "name": "Generar reporte",
+        "group": "b538bc258877ec22",
+        "order": 11,
+        "width": 6,
+        "height": 1,
+        "passthru": false,
+        "label": "Generar reporte",
+        "tooltip": "",
+        "color": "",
+        "bgcolor": "",
+        "className": "",
+        "icon": "",
+        "payload": "generar",
+        "payloadType": "str",
+        "topic": "activargenerar",
+        "topicType": "str",
+        "x": 2780,
+        "y": 1100,
+        "wires": [
+            [
+                "477fc5e9286a5df4"
+            ]
+        ]
+    },
+    {
+        "id": "19d7344fa2264d89",
+        "type": "ui_text_input",
+        "z": "2e2fa0d633e30fc9",
+        "name": "",
+        "label": "Correo",
+        "tooltip": "",
+        "group": "b538bc258877ec22",
+        "order": 7,
+        "width": 6,
+        "height": 1,
+        "passthru": true,
+        "mode": "email",
+        "delay": 300,
+        "topic": "correo",
+        "sendOnBlur": true,
+        "className": "",
+        "topicType": "str",
+        "x": 2750,
+        "y": 1060,
+        "wires": [
+            [
+                "477fc5e9286a5df4"
+            ]
+        ]
+    },
+    {
+        "id": "8e97a0f3eaa7f728",
+        "type": "ui_button",
+        "z": "2e2fa0d633e30fc9",
+        "name": "",
+        "group": "0bde2877993b7e1c",
+        "order": 0,
+        "width": 0,
+        "height": 0,
+        "passthru": false,
+        "label": "Entrar",
+        "tooltip": "",
+        "color": "",
+        "bgcolor": "#808080",
+        "className": "",
+        "icon": "",
+        "payload": "ingresar",
+        "payloadType": "str",
+        "topic": "entrar",
+        "topicType": "str",
+        "x": 750,
+        "y": 1720,
+        "wires": [
+            [
+                "0bc3a10a54e0b95c"
+            ]
+        ]
+    },
+    {
+        "id": "731091909142dfb7",
+        "type": "ui_button",
+        "z": "2e2fa0d633e30fc9",
+        "name": "",
+        "group": "e16130bc3ab476b8",
+        "order": 2,
+        "width": 3,
+        "height": 1,
+        "passthru": false,
+        "label": "Salir",
+        "tooltip": "",
+        "color": "",
+        "bgcolor": "#808080",
+        "className": "",
+        "icon": "",
+        "payload": "{\"tab\":\"Inicio\"}",
+        "payloadType": "json",
+        "topic": "Salir",
+        "topicType": "str",
+        "x": 750,
+        "y": 1660,
+        "wires": [
+            [
+                "9cc055e6f9df0dbd"
+            ]
+        ]
+    },
+    {
+        "id": "44b7a0bb13441038",
+        "type": "ui_text_input",
+        "z": "2e2fa0d633e30fc9",
+        "name": "Usuario",
+        "label": "Usuario",
+        "tooltip": "",
+        "group": "0bde2877993b7e1c",
+        "order": 1,
+        "width": "6",
+        "height": "1",
+        "passthru": true,
+        "mode": "email",
+        "delay": "500",
+        "topic": "usuario",
+        "sendOnBlur": true,
+        "className": "",
+        "topicType": "str",
+        "x": 760,
+        "y": 1760,
+        "wires": [
+            [
+                "0bc3a10a54e0b95c"
+            ]
+        ]
+    },
+    {
+        "id": "42c2faa474fe4980",
+        "type": "ui_text_input",
+        "z": "2e2fa0d633e30fc9",
+        "name": "Contraseña",
+        "label": "Contraseña",
+        "tooltip": "",
+        "group": "0bde2877993b7e1c",
+        "order": 2,
+        "width": "6",
+        "height": "1",
+        "passthru": true,
+        "mode": "password",
+        "delay": "500",
+        "topic": "contrasena",
+        "sendOnBlur": true,
+        "className": "",
+        "topicType": "str",
+        "x": 770,
+        "y": 1800,
+        "wires": [
+            [
+                "0bc3a10a54e0b95c"
+            ]
+        ]
+    },
+    {
+        "id": "0bc3a10a54e0b95c",
+        "type": "join",
+        "z": "2e2fa0d633e30fc9",
+        "name": "Union ingreso",
+        "mode": "custom",
+        "build": "object",
+        "property": "payload",
+        "propertyType": "msg",
+        "key": "topic",
+        "joiner": "\\n",
+        "joinerType": "str",
+        "accumulate": false,
+        "timeout": "",
+        "count": "3",
+        "reduceRight": false,
+        "reduceExp": "",
+        "reduceInit": "",
+        "reduceInitType": "",
+        "reduceFixup": "",
+        "x": 1000,
+        "y": 1740,
+        "wires": [
+            [
+                "af871629a80aa9ea"
+            ]
+        ]
+    },
+    {
+        "id": "129689b6e76d2268",
+        "type": "ui_toast",
+        "z": "2e2fa0d633e30fc9",
+        "position": "top right",
+        "displayTime": "3",
+        "highlight": "",
+        "sendall": true,
+        "outputs": 0,
+        "ok": "OK",
+        "cancel": "",
+        "raw": false,
+        "className": "",
+        "topic": "",
+        "name": "",
+        "x": 1430,
+        "y": 1740,
+        "wires": []
+    },
+    {
+        "id": "af871629a80aa9ea",
+        "type": "function",
+        "z": "2e2fa0d633e30fc9",
+        "name": "Verificar ingreso",
+        "func": "let correousu = msg.payload.usuario;\nlet password = msg.payload.contrasena;\nif (msg.payload.entrar===\"ingresar\"){\n    let usuario1 = \"felixopm1997@gmail.com\";\n    let contrasena1 = \"admin\";\n    if ((correousu === usuario1) && (password === contrasena1)){\n        msg.payload = {\"tab\":\"SmartFilling\"};\n        msg.intro = true;\n        return msg;\n    }else{\n        msg.payload = \"El usuario y la contraseña ingresados no coinciden con \"\n        +\"ninguna credencial registrada.\";\n        msg.topic = \"Error de credenciales\";\n        msg.intro = false;\n        return msg;\n    }\n}else{\n    \n}\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1220,
+        "y": 1600,
+        "wires": [
+            [
+                "3e925e3e8ec31bd8"
+            ]
+        ]
+    },
+    {
+        "id": "3e925e3e8ec31bd8",
+        "type": "switch",
+        "z": "2e2fa0d633e30fc9",
+        "name": "Intro",
+        "property": "intro",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "true"
+            },
+            {
+                "t": "false"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 2,
+        "x": 1370,
+        "y": 1600,
+        "wires": [
+            [
+                "9cc055e6f9df0dbd"
+            ],
+            [
+                "129689b6e76d2268"
+            ]
+        ]
+    },
+    {
+        "id": "477fc5e9286a5df4",
+        "type": "join",
+        "z": "2e2fa0d633e30fc9",
+        "name": "Unión generar reporte notificaciones",
+        "mode": "custom",
+        "build": "object",
+        "property": "payload",
+        "propertyType": "msg",
+        "key": "topic",
+        "joiner": "\\n",
+        "joinerType": "str",
+        "accumulate": false,
+        "timeout": "",
+        "count": "2",
+        "reduceRight": false,
+        "reduceExp": "",
+        "reduceInit": "",
+        "reduceInitType": "num",
+        "reduceFixup": "",
+        "x": 3190,
+        "y": 1080,
+        "wires": [
+            [
+                "a86b8b4ae627b96b"
+            ]
+        ]
+    },
+    {
+        "id": "a86b8b4ae627b96b",
+        "type": "function",
+        "z": "2e2fa0d633e30fc9",
+        "name": "Solicitar Reporte 2",
+        "func": "let correoreporte = String(msg.payload.correo);\n\nif (msg.payload.activargenerar === \"generar\"){\n   \n    msg = {};\n    let fechahora= new Date().toLocaleString();\n    fechahora = fechahora.split(\"/\").join('_');\n    fechahora = fechahora.split(\":\").join('_');\n    msg.nombrearchivo = \"ReporteEventos_\"+fechahora+\".txt\";\n    msg.topic = \"select Fecha,Tipo,Operador into outfile '\"+msg.nombrearchivo+\n    \"' fields terminated by ',' lines terminated by '\\n' from tlnotificaciones;\";\n    msg.correo = correoreporte;\n    msg.generarreporte2 = true;\n    return msg;\n    \n}else{\n    \n}",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 3480,
+        "y": 1080,
+        "wires": [
+            [
+                "3a8aad8fa02a6768"
+            ]
+        ]
+    },
+    {
+        "id": "cae18bd56eebe7f9",
+        "type": "switch",
+        "z": "2e2fa0d633e30fc9",
+        "name": "Activar generar 2",
+        "property": "generarreporte2",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "true"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 1,
+        "x": 4050,
+        "y": 600,
+        "wires": [
+            [
+                "bdaa57ae9b252ac6"
+            ]
+        ]
+    },
+    {
+        "id": "bdaa57ae9b252ac6",
+        "type": "function",
+        "z": "2e2fa0d633e30fc9",
+        "name": "Construir correo reporte2",
+        "func": "let destinatario = msg.correo;\nlet documento = msg.nombrearchivo;\nlet ubicacion = \"/var/lib/mysql/llenadotolvasdb/\"+documento;\nlet fecha = new Date().toLocaleString();\nlet tema = \"Smart Filling: Reporte de Notificaciones y Eventos (\"+fecha+\").\";\nlet mensaje = \"Saludos cordiales, \\nSe adjunta a este correo el reporte de\"+ \n\"notificaciones. No responder a este correo.\";\nmsg = { payload: mensaje, to: destinatario, topic: tema, attachments: {\n    filename: documento, path: ubicacion}\n}\nreturn msg;\n",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 4330,
+        "y": 600,
+        "wires": [
+            [
+                "5c0b2d7b6ab97846"
+            ]
+        ]
+    },
+    {
+        "id": "e620718a0686e92b",
+        "type": "ui_button",
+        "z": "2e2fa0d633e30fc9",
+        "name": "Restaurar piscina",
+        "group": "15b991c9ebc281ee",
+        "order": 9,
+        "width": 6,
+        "height": 1,
+        "passthru": false,
+        "label": "Restaurar",
+        "tooltip": "",
+        "color": "",
+        "bgcolor": "",
+        "className": "",
+        "icon": "",
+        "payload": "restaurar",
+        "payloadType": "str",
+        "topic": "activarrestaurar",
+        "topicType": "str",
+        "x": 2790,
+        "y": 1280,
+        "wires": [
+            [
+                "47a8074e04693cb2"
+            ]
+        ]
+    },
+    {
+        "id": "9294961026f6c0e0",
+        "type": "ui_text_input",
+        "z": "2e2fa0d633e30fc9",
+        "name": "Piscina",
+        "label": "Piscina",
+        "tooltip": "",
+        "group": "15b991c9ebc281ee",
+        "order": 7,
+        "width": 6,
+        "height": 1,
+        "passthru": true,
+        "mode": "number",
+        "delay": 300,
+        "topic": "piscina",
+        "sendOnBlur": true,
+        "className": "",
+        "topicType": "str",
+        "x": 2760,
+        "y": 1240,
+        "wires": [
+            [
+                "47a8074e04693cb2"
+            ]
+        ]
+    },
+    {
+        "id": "47a8074e04693cb2",
+        "type": "join",
+        "z": "2e2fa0d633e30fc9",
+        "name": "Unión restaurar piscina",
+        "mode": "custom",
+        "build": "object",
+        "property": "payload",
+        "propertyType": "msg",
+        "key": "topic",
+        "joiner": "\\n",
+        "joinerType": "str",
+        "accumulate": false,
+        "timeout": "",
+        "count": "2",
+        "reduceRight": false,
+        "reduceExp": "",
+        "reduceInit": "",
+        "reduceInitType": "num",
+        "reduceFixup": "",
+        "x": 3150,
+        "y": 1260,
+        "wires": [
+            [
+                "6b4036f8035c5f35"
+            ]
+        ]
+    },
+    {
+        "id": "6b4036f8035c5f35",
+        "type": "function",
+        "z": "2e2fa0d633e30fc9",
+        "name": "Solicitar Restaurar",
+        "func": "\nlet piscina = String(msg.payload.piscina);\n\nif (msg.payload.activarrestaurar === \"restaurar\"){\n   \n    msg.topic = \"update tlestado set Llenada = '0' where Piscina = '\"+piscina+\"';\";\n    \n    return msg;\n    \n}else{\n    \n}",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 3470,
+        "y": 1260,
+        "wires": [
+            [
+                "3a8aad8fa02a6768"
+            ]
+        ]
+    },
+    {
+        "id": "76e724c5e4de6fc3",
+        "type": "ui_text",
+        "z": "2e2fa0d633e30fc9",
+        "group": "89224715577891b5",
+        "order": 4,
+        "width": 6,
+        "height": 1,
+        "name": "",
+        "label": "Datos del nuevo usuario",
+        "format": "{{msg.payload}}",
+        "layout": "row-left",
+        "className": "",
+        "x": 2810,
+        "y": 280,
+        "wires": []
+    },
+    {
+        "id": "4b00832fc8c55c33",
+        "type": "ui_text",
+        "z": "2e2fa0d633e30fc9",
+        "group": "c4d128cbe99ef29c",
+        "order": 4,
+        "width": 6,
+        "height": 1,
+        "name": "",
+        "label": "Datos de la nueva tolva",
+        "format": "{{msg.payload}}",
+        "layout": "row-left",
+        "className": "",
+        "x": 2810,
+        "y": 640,
+        "wires": []
+    },
+    {
+        "id": "40f783151b0ecb74",
+        "type": "ui_text",
+        "z": "2e2fa0d633e30fc9",
+        "group": "fb1ccea75cb8fa26",
+        "order": 4,
+        "width": 6,
+        "height": 1,
+        "name": "",
+        "label": "Correo de destino del reporte",
+        "format": "{{msg.payload}}",
+        "layout": "row-left",
+        "className": "",
+        "x": 2820,
+        "y": 840,
+        "wires": []
+    },
+    {
+        "id": "5355ac467cabdf65",
+        "type": "ui_text",
+        "z": "2e2fa0d633e30fc9",
+        "group": "b538bc258877ec22",
+        "order": 4,
+        "width": 6,
+        "height": 1,
+        "name": "",
+        "label": "Correo de destino del reporte",
+        "format": "{{msg.payload}}",
+        "layout": "row-left",
+        "className": "",
+        "x": 2820,
+        "y": 1020,
+        "wires": []
+    },
+    {
+        "id": "08e71af2eb1b986d",
+        "type": "ui_text",
+        "z": "2e2fa0d633e30fc9",
+        "group": "15b991c9ebc281ee",
+        "order": 5,
+        "width": 6,
+        "height": 1,
+        "name": "",
+        "label": "Piscina a restaurar",
+        "format": "{{msg.payload}}",
+        "layout": "row-left",
+        "className": "",
+        "x": 2790,
+        "y": 1200,
+        "wires": []
+    },
+    {
+        "id": "6876a419aa0fdfe9",
+        "type": "mysql",
+        "z": "2e2fa0d633e30fc9",
+        "mydb": "ef0cb22a29208031",
+        "name": "",
+        "x": 600,
+        "y": 400,
+        "wires": [
+            [
+                "b71400f208bd6d07",
+                "ee6ea5eb0c4b87fe"
+            ]
+        ]
+    },
+    {
+        "id": "0745512a8c9d40e5",
+        "type": "mysql",
+        "z": "2e2fa0d633e30fc9",
+        "mydb": "ef0cb22a29208031",
+        "name": "",
+        "x": 2240,
+        "y": 280,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "5c0b2d7b6ab97846",
+        "type": "e-mail",
+        "z": "2e2fa0d633e30fc9",
+        "server": "smtp.gmail.com",
+        "port": "465",
+        "secure": true,
+        "tls": true,
+        "name": "",
+        "dname": "",
+        "x": 4670,
+        "y": 520,
+        "wires": []
+    },
+    {
+        "id": "f0480414332ea42c",
+        "type": "ui_dropdown",
+        "z": "2e2fa0d633e30fc9",
+        "name": "",
+        "label": "Piscina",
+        "tooltip": "",
+        "place": "Select option",
+        "group": "cdc198e47f49d685",
+        "order": 24,
+        "width": 6,
+        "height": 1,
+        "passthru": true,
+        "multiple": false,
+        "options": [
+            {
+                "label": "",
+                "value": "",
+                "type": "str"
+            }
+        ],
+        "payload": "",
+        "topic": "topic",
+        "topicType": "msg",
+        "className": "",
+        "x": 3380,
+        "y": 2360,
+        "wires": [
+            [
+                "e27a295db588a705"
+            ]
+        ]
+    },
+    {
+        "id": "e77d623353bd46fc",
+        "type": "ui_chart",
+        "z": "2e2fa0d633e30fc9",
+        "name": "",
+        "group": "cdc198e47f49d685",
+        "order": 27,
+        "width": 24,
+        "height": 7,
+        "label": "Estatus de las tolvas",
+        "chartType": "bar",
+        "legend": "false",
+        "xformat": "HH:mm:ss",
+        "interpolate": "linear",
+        "nodata": "",
+        "dot": false,
+        "ymin": "",
+        "ymax": "",
+        "removeOlder": 1,
+        "removeOlderPoints": "",
+        "removeOlderUnit": "3600",
+        "cutout": 0,
+        "useOneColor": false,
+        "useUTC": false,
+        "colors": [
+            "#1f77b4",
+            "#aec7e8",
+            "#ff7f0e",
+            "#2ca02c",
+            "#98df8a",
+            "#d62728",
+            "#ff9896",
+            "#9467bd",
+            "#c5b0d5"
+        ],
+        "outputs": 1,
+        "useDifferentColor": false,
+        "className": "",
+        "x": 4000,
+        "y": 2360,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "12ee50d403325262",
+        "type": "inject",
+        "z": "2e2fa0d633e30fc9",
+        "name": "Lista",
+        "props": [
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "600",
+        "crontab": "",
+        "once": true,
+        "onceDelay": "5",
+        "topic": "SELECT Piscina FROM tlestado WHERE Tolva = '1';",
+        "x": 2750,
+        "y": 2360,
+        "wires": [
+            [
+                "02f3581da59f7c88"
+            ]
+        ]
+    },
+    {
+        "id": "02f3581da59f7c88",
+        "type": "mysql",
+        "z": "2e2fa0d633e30fc9",
+        "mydb": "ef0cb22a29208031",
+        "name": "",
+        "x": 2960,
+        "y": 2360,
+        "wires": [
+            [
+                "16b8a462a4ea60d2"
+            ]
+        ]
+    },
+    {
+        "id": "16b8a462a4ea60d2",
+        "type": "function",
+        "z": "2e2fa0d633e30fc9",
+        "name": "Piscinas para lista",
+        "func": "\nnumpiscinas = msg.payload.length -1;\narreglo = [];\nfor (i=0;i<=numpiscinas;i++){\n    arreglo[i] = msg.payload[i].Piscina;\n}\nmsg = {options: arreglo, pisc1: arreglo[0]};\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 3170,
+        "y": 2360,
+        "wires": [
+            [
+                "f0480414332ea42c"
+            ]
+        ]
+    },
+    {
+        "id": "e27a295db588a705",
+        "type": "function",
+        "z": "2e2fa0d633e30fc9",
+        "name": "function 2",
+        "func": "let piscinasolicitada = msg.payload;\nlet piscinadefault = msg.pisc1;\n\nif (piscinasolicitada!=\"\"){\n    msg = {};\n    msg.topic = \"select Llenada from tlestado where Piscina ='\"+piscinasolicitada+\n    \"' order by Tolva asc;\";\n    return msg;\n}else{\n    msg = {};\n    msg.topic = \"select Llenada from tlestado where Piscina = '\"+piscinadefault+\n    \"' order by Tolva asc;\";\n    return msg;\n}\n    ",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 3560,
+        "y": 2360,
+        "wires": [
+            [
+                "fe68bc757882c20b"
+            ]
+        ]
+    },
+    {
+        "id": "fe68bc757882c20b",
+        "type": "mysql",
+        "z": "2e2fa0d633e30fc9",
+        "mydb": "ef0cb22a29208031",
+        "name": "",
+        "x": 2840,
+        "y": 2500,
+        "wires": [
+            [
+                "1319dc353e5920d9"
+            ]
+        ]
+    },
+    {
+        "id": "9dc9ee14165a6c0e",
+        "type": "function",
+        "z": "2e2fa0d633e30fc9",
+        "name": "Construir gráfico de barras",
+        "func": "flow.set(\"contador\",msg.conteo);\nflow.set(\"total\",msg.numeritos);\nflow.set(\"carga\",msg.payload);\n\nlet corte = Number(flow.get(\"contador\"));\nlet sigcorte = corte + 1;\nlet limite = Number(flow.get(\"total\"));\nlet objeto = flow.get(\"carga\")\n\ntolvanombre = \"Tolva_\"+String(corte+1);\nllenadas = objeto[corte].Llenada;\n    \nmsg = {topic: tolvanombre, payload: llenadas};\n\nmsg.conteo = sigcorte;\nmsg.numeritos = limite;\nmsg.payloadsig = objeto;\n\nreturn msg;\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 3500,
+        "y": 2440,
+        "wires": [
+            [
+                "57f19e41d4ba8668",
+                "e77d623353bd46fc"
+            ]
+        ]
+    },
+    {
+        "id": "1319dc353e5920d9",
+        "type": "function",
+        "z": "2e2fa0d633e30fc9",
+        "name": "Set Contador",
+        "func": "let numerito = msg.payload.length;\nmsg.numeritos = numerito-1;\nmsg.conteo = 0;\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 3070,
+        "y": 2500,
+        "wires": [
+            [
+                "9dc9ee14165a6c0e"
+            ]
+        ]
+    },
+    {
+        "id": "6c481f2769c22067",
+        "type": "switch",
+        "z": "2e2fa0d633e30fc9",
+        "name": "",
+        "property": "conteo",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "lte",
+                "v": "numeritos",
+                "vt": "msg"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 1,
+        "x": 3570,
+        "y": 2500,
+        "wires": [
+            [
+                "9dc9ee14165a6c0e"
+            ]
+        ]
+    },
+    {
+        "id": "57f19e41d4ba8668",
+        "type": "function",
+        "z": "2e2fa0d633e30fc9",
+        "name": "Retorno ",
+        "func": "flow.set(\"contador\",msg.conteo);\nflow.set(\"total\",msg.numeritos);\nflow.set(\"carga\",msg.payloadsig);\n\nlet corte = Number(flow.get(\"contador\"));\nlet sigcorte = corte;\nlet limite = Number(flow.get(\"total\"));\nlet objeto = flow.get(\"carga\")\n\nmsg.conteo = sigcorte;\nmsg.numeritos = limite;\nmsg.payload = objeto;\n\nreturn msg;\n\n",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 3280,
+        "y": 2500,
+        "wires": [
+            [
+                "370d15689aeb69aa"
+            ]
+        ]
+    },
+    {
+        "id": "370d15689aeb69aa",
+        "type": "delay",
+        "z": "2e2fa0d633e30fc9",
+        "name": "",
+        "pauseType": "delay",
+        "timeout": "100",
+        "timeoutUnits": "milliseconds",
+        "rate": "1",
+        "nbRateUnits": "1",
+        "rateUnits": "second",
+        "randomFirst": "1",
+        "randomLast": "5",
+        "randomUnits": "seconds",
+        "drop": false,
+        "allowrate": false,
+        "outputs": 1,
+        "x": 3430,
+        "y": 2500,
+        "wires": [
+            [
+                "6c481f2769c22067"
+            ]
+        ]
+    },
+    {
+        "id": "07dae93e814901e7",
+        "type": "ui_text",
+        "z": "2e2fa0d633e30fc9",
+        "group": "cdc198e47f49d685",
+        "order": 21,
+        "width": 6,
+        "height": 1,
+        "name": "",
+        "label": "Consulta en tiempo real",
+        "format": "{{msg.payload}}",
+        "layout": "row-left",
+        "className": "",
+        "x": 2749.851318359375,
+        "y": 2297.46044921875,
+        "wires": []
+    },
+    {
+        "id": "2a1bb0f3f1acdc1c",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "e16130bc3ab476b8",
+        "order": 1,
+        "width": 23,
+        "height": 1
+    },
+    {
+        "id": "ac318e3143c1b487",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "e16130bc3ab476b8",
+        "order": 3,
+        "width": 9,
+        "height": 1
+    },
+    {
+        "id": "6e10e7bcc4aab923",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "e16130bc3ab476b8",
+        "order": 5,
+        "width": 11,
+        "height": 1
+    },
+    {
+        "id": "de57e37226c0730f",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "e16130bc3ab476b8",
+        "order": 6,
+        "width": 9,
+        "height": 1
+    },
+    {
+        "id": "5b756b26063a68a6",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "e16130bc3ab476b8",
+        "order": 8,
+        "width": 11,
+        "height": 1
+    },
+    {
+        "id": "298aff06486be71e",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "e16130bc3ab476b8",
+        "order": 9,
+        "width": 9,
+        "height": 1
+    },
+    {
+        "id": "3d288450bcbf903a",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "e16130bc3ab476b8",
+        "order": 11,
+        "width": 11,
+        "height": 1
+    },
+    {
+        "id": "f26b1ae55ee51b0c",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "e16130bc3ab476b8",
+        "order": 12,
+        "width": 9,
+        "height": 1
+    },
+    {
+        "id": "a6e8d872a687edab",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "e16130bc3ab476b8",
+        "order": 14,
+        "width": 11,
+        "height": 1
+    },
+    {
+        "id": "6719bc0ba0908ec1",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "e16130bc3ab476b8",
+        "order": 15,
+        "width": 9,
+        "height": 1
+    },
+    {
+        "id": "f3caf333f0dd73ba",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "e16130bc3ab476b8",
+        "order": 17,
+        "width": 11,
+        "height": 1
+    },
+    {
+        "id": "d47b56434f3be3a0",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "e16130bc3ab476b8",
+        "order": 18,
+        "width": 9,
+        "height": 1
+    },
+    {
+        "id": "c1724a3c404dccfe",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "e16130bc3ab476b8",
+        "order": 20,
+        "width": 11,
+        "height": 1
+    },
+    {
+        "id": "0f4eb17363bde30d",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "cdc198e47f49d685",
+        "order": 2,
+        "width": 23,
+        "height": 1
+    },
+    {
+        "id": "954a47e7b523c5fa",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "cdc198e47f49d685",
+        "order": 4,
+        "width": 1,
+        "height": 1
+    },
+    {
+        "id": "b7c5bd6c1d6e1de2",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "cdc198e47f49d685",
+        "order": 6,
+        "width": 1,
+        "height": 1
+    },
+    {
+        "id": "17664251ef6f4ada",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "cdc198e47f49d685",
+        "order": 8,
+        "width": 1,
+        "height": 1
+    },
+    {
+        "id": "27eed53b64337e55",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "cdc198e47f49d685",
+        "order": 10,
+        "width": 1,
+        "height": 1
+    },
+    {
+        "id": "722f3b1e3ec88c9a",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "cdc198e47f49d685",
+        "order": 11,
+        "width": 1,
+        "height": 1
+    },
+    {
+        "id": "d5b69975428118ca",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "cdc198e47f49d685",
+        "order": 12,
+        "width": 1,
+        "height": 1
+    },
+    {
+        "id": "8c025b573ecccb8d",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "cdc198e47f49d685",
+        "order": 13,
+        "width": 1,
+        "height": 1
+    },
+    {
+        "id": "36e27d3bbcba9c7d",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "cdc198e47f49d685",
+        "order": 14,
+        "width": 1,
+        "height": 1
+    },
+    {
+        "id": "56c891bfa3853602",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "cdc198e47f49d685",
+        "order": 15,
+        "width": 1,
+        "height": 1
+    },
+    {
+        "id": "e81ee7199f6ca2d7",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "cdc198e47f49d685",
+        "order": 16,
+        "width": 1,
+        "height": 1
+    },
+    {
+        "id": "449756b13fed9837",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "cdc198e47f49d685",
+        "order": 17,
+        "width": 1,
+        "height": 1
+    },
+    {
+        "id": "52558dd216185ea2",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "cdc198e47f49d685",
+        "order": 18,
+        "width": 1,
+        "height": 1
+    },
+    {
+        "id": "591fb3912a7a17eb",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "cdc198e47f49d685",
+        "order": 19,
+        "width": 1,
+        "height": 1
+    },
+    {
+        "id": "2d7c46f5f1d37051",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "cdc198e47f49d685",
+        "order": 20,
+        "width": 10,
+        "height": 1
+    },
+    {
+        "id": "8d1ca863d666323a",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "cdc198e47f49d685",
+        "order": 22,
+        "width": 10,
+        "height": 1
+    },
+    {
+        "id": "7a2252d316d62dcf",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "cdc198e47f49d685",
+        "order": 23,
+        "width": 10,
+        "height": 1
+    },
+    {
+        "id": "12c7ea58fd4713bb",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "cdc198e47f49d685",
+        "order": 25,
+        "width": 10,
+        "height": 1
+    },
+    {
+        "id": "135c27d87a935115",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "cdc198e47f49d685",
+        "order": 26,
+        "width": 1,
+        "height": 1
+    },
+    {
+        "id": "1a88c04b419a0930",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "cdc198e47f49d685",
+        "order": 28,
+        "width": 1,
+        "height": 1
+    },
+    {
+        "id": "1bfc9095a7fe5fe7",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "cdc198e47f49d685",
+        "order": 29,
+        "width": 1,
+        "height": 1
+    },
+    {
+        "id": "a6f7e4b0aa52212d",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "cdc198e47f49d685",
+        "order": 30,
+        "width": 1,
+        "height": 1
+    },
+    {
+        "id": "8363523f52700d65",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "cdc198e47f49d685",
+        "order": 31,
+        "width": 1,
+        "height": 1
+    },
+    {
+        "id": "9509071d6aa7bcc6",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "cdc198e47f49d685",
+        "order": 32,
+        "width": 1,
+        "height": 1
+    },
+    {
+        "id": "2355b4b1bf436f89",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "cdc198e47f49d685",
+        "order": 33,
+        "width": 1,
+        "height": 1
+    },
+    {
+        "id": "d3d8a4b29643bd91",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "cdc198e47f49d685",
+        "order": 34,
+        "width": 1,
+        "height": 1
+    },
+    {
+        "id": "f110b02c24bead85",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "cdc198e47f49d685",
+        "order": 35,
+        "width": 1,
+        "height": 1
+    },
+    {
+        "id": "8376caaa595d6b87",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "cdc198e47f49d685",
+        "order": 36,
+        "width": 1,
+        "height": 1
+    },
+    {
+        "id": "1ee2b8ae28fa9138",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "cdc198e47f49d685",
+        "order": 37,
+        "width": 1,
+        "height": 1
+    },
+    {
+        "id": "09ca4c31b13c35b7",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "cdc198e47f49d685",
+        "order": 38,
+        "width": 1,
+        "height": 1
+    },
+    {
+        "id": "cd563bffb871b3c0",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "cdc198e47f49d685",
+        "order": 39,
+        "width": 1,
+        "height": 1
+    },
+    {
+        "id": "91907459065965c6",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "cdc198e47f49d685",
+        "order": 40,
+        "width": 1,
+        "height": 1
+    },
+    {
+        "id": "accab6471f413168",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "fb1ccea75cb8fa26",
+        "order": 2,
+        "width": 23,
+        "height": 1
+    },
+    {
+        "id": "80d02689fd5373c2",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "fb1ccea75cb8fa26",
+        "order": 3,
+        "width": 10,
+        "height": 1
+    },
+    {
+        "id": "525c4dc4fa8b1ca9",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "fb1ccea75cb8fa26",
+        "order": 5,
+        "width": 10,
+        "height": 1
+    },
+    {
+        "id": "e50a44d054380c87",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "fb1ccea75cb8fa26",
+        "order": 6,
+        "width": 10,
+        "height": 1
+    },
+    {
+        "id": "74cbd29a9c1c891d",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "fb1ccea75cb8fa26",
+        "order": 8,
+        "width": 10,
+        "height": 1
+    },
+    {
+        "id": "844f8753d2c8d017",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "fb1ccea75cb8fa26",
+        "order": 9,
+        "width": 26,
+        "height": 1
+    },
+    {
+        "id": "6a86beec7d4cf4a4",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "fb1ccea75cb8fa26",
+        "order": 10,
+        "width": 10,
+        "height": 1
+    },
+    {
+        "id": "590c5c37422aed97",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "fb1ccea75cb8fa26",
+        "order": 12,
+        "width": 10,
+        "height": 1
+    },
+    {
+        "id": "436b7149d6f859d6",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "b538bc258877ec22",
+        "order": 2,
+        "width": 23,
+        "height": 1
+    },
+    {
+        "id": "b6cda563a684268e",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "b538bc258877ec22",
+        "order": 3,
+        "width": 9,
+        "height": 1
+    },
+    {
+        "id": "4a58853833348fcb",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "b538bc258877ec22",
+        "order": 5,
+        "width": 11,
+        "height": 1
+    },
+    {
+        "id": "894ca0cdd8fecf9e",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "b538bc258877ec22",
+        "order": 6,
+        "width": 9,
+        "height": 1
+    },
+    {
+        "id": "05848d2468ac5b1d",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "b538bc258877ec22",
+        "order": 8,
+        "width": 11,
+        "height": 1
+    },
+    {
+        "id": "5932ba2d4bce3c1a",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "b538bc258877ec22",
+        "order": 9,
+        "width": 26,
+        "height": 1
+    },
+    {
+        "id": "ff3df56cbd5163c2",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "b538bc258877ec22",
+        "order": 10,
+        "width": 9,
+        "height": 1
+    },
+    {
+        "id": "2268a664ad6edd53",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "b538bc258877ec22",
+        "order": 12,
+        "width": 11,
+        "height": 1
+    },
+    {
+        "id": "092184fecc25f1af",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "89224715577891b5",
+        "order": 2,
+        "width": 23,
+        "height": 1
+    },
+    {
+        "id": "c5f9cfae203783c3",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "89224715577891b5",
+        "order": 3,
+        "width": 10,
+        "height": 1
+    },
+    {
+        "id": "3522961c065ea5e0",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "89224715577891b5",
+        "order": 5,
+        "width": 10,
+        "height": 1
+    },
+    {
+        "id": "f15d993b06fb33d5",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "89224715577891b5",
+        "order": 6,
+        "width": 10,
+        "height": 1
+    },
+    {
+        "id": "1bac9e3688792257",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "89224715577891b5",
+        "order": 8,
+        "width": 10,
+        "height": 1
+    },
+    {
+        "id": "d0cb9df0b069eaa4",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "89224715577891b5",
+        "order": 9,
+        "width": 10,
+        "height": 1
+    },
+    {
+        "id": "072424439b72ad0b",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "89224715577891b5",
+        "order": 11,
+        "width": 10,
+        "height": 1
+    },
+    {
+        "id": "286db35b3f754b77",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "89224715577891b5",
+        "order": 12,
+        "width": 10,
+        "height": 1
+    },
+    {
+        "id": "e42057b40f3a44fd",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "89224715577891b5",
+        "order": 14,
+        "width": 10,
+        "height": 1
+    },
+    {
+        "id": "9f73e9688e65afbd",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "89224715577891b5",
+        "order": 15,
+        "width": 10,
+        "height": 1
+    },
+    {
+        "id": "a4528c487526b19a",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "89224715577891b5",
+        "order": 17,
+        "width": 10,
+        "height": 1
+    },
+    {
+        "id": "67f262ec3691c575",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "89224715577891b5",
+        "order": 18,
+        "width": 10,
+        "height": 1
+    },
+    {
+        "id": "d4512b05b4cf01fa",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "89224715577891b5",
+        "order": 20,
+        "width": 10,
+        "height": 1
+    },
+    {
+        "id": "f0841ad599d5a46a",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "89224715577891b5",
+        "order": 21,
+        "width": 10,
+        "height": 1
+    },
+    {
+        "id": "6c72acf5ade4c245",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "89224715577891b5",
+        "order": 23,
+        "width": 10,
+        "height": 1
+    },
+    {
+        "id": "7336e87083a2a448",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "89224715577891b5",
+        "order": 24,
+        "width": 26,
+        "height": 1
+    },
+    {
+        "id": "b76ffd04873bdd5b",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "89224715577891b5",
+        "order": 25,
+        "width": 10,
+        "height": 1
+    },
+    {
+        "id": "4a2299f432628275",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "89224715577891b5",
+        "order": 27,
+        "width": 10,
+        "height": 1
+    },
+    {
+        "id": "3b80087fae2332f5",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "c4d128cbe99ef29c",
+        "order": 2,
+        "width": 23,
+        "height": 1
+    },
+    {
+        "id": "a96fe00090515740",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "c4d128cbe99ef29c",
+        "order": 3,
+        "width": 10,
+        "height": 1
+    },
+    {
+        "id": "bf47924bb3e6627f",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "c4d128cbe99ef29c",
+        "order": 5,
+        "width": 10,
+        "height": 1
+    },
+    {
+        "id": "e0be4b4ee9d12490",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "c4d128cbe99ef29c",
+        "order": 6,
+        "width": 10,
+        "height": 1
+    },
+    {
+        "id": "5abeec5faef35220",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "c4d128cbe99ef29c",
+        "order": 8,
+        "width": 10,
+        "height": 1
+    },
+    {
+        "id": "8b0c6e394d6a36d4",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "c4d128cbe99ef29c",
+        "order": 9,
+        "width": 10,
+        "height": 1
+    },
+    {
+        "id": "1e03402826d79e97",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "c4d128cbe99ef29c",
+        "order": 11,
+        "width": 10,
+        "height": 1
+    },
+    {
+        "id": "8bfeb140f1aa45c2",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "c4d128cbe99ef29c",
+        "order": 12,
+        "width": 26,
+        "height": 1
+    },
+    {
+        "id": "21b8901e43f5e4b5",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "c4d128cbe99ef29c",
+        "order": 13,
+        "width": 10,
+        "height": 1
+    },
+    {
+        "id": "3847eadc43c0bbea",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "c4d128cbe99ef29c",
+        "order": 15,
+        "width": 10,
+        "height": 1
+    },
+    {
+        "id": "9d7ef45664394776",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "15b991c9ebc281ee",
+        "order": 2,
+        "width": 23,
+        "height": 1
+    },
+    {
+        "id": "c0900a350e2070a9",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "15b991c9ebc281ee",
+        "order": 3,
+        "width": 26,
+        "height": 1
+    },
+    {
+        "id": "7d43a8b95856d62a",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "15b991c9ebc281ee",
+        "order": 4,
+        "width": 20,
+        "height": 1
+    },
+    {
+        "id": "a3462d637b382edb",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "15b991c9ebc281ee",
+        "order": 6,
+        "width": 20,
+        "height": 1
+    },
+    {
+        "id": "c527ba2a14e1f884",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "15b991c9ebc281ee",
+        "order": 8,
+        "width": 20,
+        "height": 1
+    },
+    {
+        "id": "9bfd33eef6883a9f",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "e16130bc3ab476b8",
+        "order": 1,
+        "width": 23,
+        "height": 1
+    },
+    {
+        "id": "1a18696d3b4be62b",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "e16130bc3ab476b8",
+        "order": 3,
+        "width": 9,
+        "height": 1
+    },
+    {
+        "id": "38b371378b6aebe0",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "e16130bc3ab476b8",
+        "order": 5,
+        "width": 11,
+        "height": 1
+    },
+    {
+        "id": "98d52a5173c631af",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "e16130bc3ab476b8",
+        "order": 6,
+        "width": 9,
+        "height": 1
+    },
+    {
+        "id": "d4f665384221fbdd",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "e16130bc3ab476b8",
+        "order": 8,
+        "width": 11,
+        "height": 1
+    },
+    {
+        "id": "5a462128ae655775",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "e16130bc3ab476b8",
+        "order": 9,
+        "width": 9,
+        "height": 1
+    },
+    {
+        "id": "17ac5fcfd5392475",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "e16130bc3ab476b8",
+        "order": 11,
+        "width": 11,
+        "height": 1
+    },
+    {
+        "id": "1c6c513e9702836b",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "e16130bc3ab476b8",
+        "order": 12,
+        "width": 9,
+        "height": 1
+    },
+    {
+        "id": "df0ff1d0263c09db",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "e16130bc3ab476b8",
+        "order": 14,
+        "width": 11,
+        "height": 1
+    },
+    {
+        "id": "86d92e1915c8ad00",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "e16130bc3ab476b8",
+        "order": 15,
+        "width": 9,
+        "height": 1
+    },
+    {
+        "id": "3198cd23047d2b8e",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "e16130bc3ab476b8",
+        "order": 17,
+        "width": 11,
+        "height": 1
+    },
+    {
+        "id": "4cd54f3d93165e9a",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "e16130bc3ab476b8",
+        "order": 18,
+        "width": 9,
+        "height": 1
+    },
+    {
+        "id": "e96e5baeed265411",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "e16130bc3ab476b8",
+        "order": 20,
+        "width": 11,
+        "height": 1
+    },
+    {
+        "id": "1de72871b2af0788",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "cdc198e47f49d685",
+        "order": 2,
+        "width": 23,
+        "height": 1
+    },
+    {
+        "id": "88719f358ba707be",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "cdc198e47f49d685",
+        "order": 4,
+        "width": 1,
+        "height": 1
+    },
+    {
+        "id": "269f0d3709eae25e",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "cdc198e47f49d685",
+        "order": 6,
+        "width": 1,
+        "height": 1
+    },
+    {
+        "id": "de1c0e25af5ef706",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "cdc198e47f49d685",
+        "order": 8,
+        "width": 1,
+        "height": 1
+    },
+    {
+        "id": "f8d433ca787887f5",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "cdc198e47f49d685",
+        "order": 10,
+        "width": 1,
+        "height": 1
+    },
+    {
+        "id": "425aed717114d43d",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "cdc198e47f49d685",
+        "order": 11,
+        "width": 1,
+        "height": 1
+    },
+    {
+        "id": "c03c872f4001f4f6",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "cdc198e47f49d685",
+        "order": 12,
+        "width": 1,
+        "height": 1
+    },
+    {
+        "id": "6f263eddae5ca99d",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "cdc198e47f49d685",
+        "order": 13,
+        "width": 1,
+        "height": 1
+    },
+    {
+        "id": "bf4028cb7aeb8b92",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "cdc198e47f49d685",
+        "order": 14,
+        "width": 1,
+        "height": 1
+    },
+    {
+        "id": "cab872100a2115e2",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "cdc198e47f49d685",
+        "order": 15,
+        "width": 1,
+        "height": 1
+    },
+    {
+        "id": "437405be508137ba",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "cdc198e47f49d685",
+        "order": 16,
+        "width": 1,
+        "height": 1
+    },
+    {
+        "id": "d9300a3b5529d594",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "cdc198e47f49d685",
+        "order": 17,
+        "width": 1,
+        "height": 1
+    },
+    {
+        "id": "0eba325e7115e7f0",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "cdc198e47f49d685",
+        "order": 18,
+        "width": 1,
+        "height": 1
+    },
+    {
+        "id": "47b01d3cf74c60cc",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "cdc198e47f49d685",
+        "order": 19,
+        "width": 1,
+        "height": 1
+    },
+    {
+        "id": "61105f794ea17609",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "cdc198e47f49d685",
+        "order": 20,
+        "width": 10,
+        "height": 1
+    },
+    {
+        "id": "499520a0c19ce3ab",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "cdc198e47f49d685",
+        "order": 22,
+        "width": 10,
+        "height": 1
+    },
+    {
+        "id": "06a65b94dd22d362",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "cdc198e47f49d685",
+        "order": 23,
+        "width": 10,
+        "height": 1
+    },
+    {
+        "id": "1e3fae41cc2fbbfe",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "cdc198e47f49d685",
+        "order": 25,
+        "width": 10,
+        "height": 1
+    },
+    {
+        "id": "211a9076b851bd4a",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "cdc198e47f49d685",
+        "order": 26,
+        "width": 1,
+        "height": 1
+    },
+    {
+        "id": "645b26febdedadf0",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "cdc198e47f49d685",
+        "order": 28,
+        "width": 1,
+        "height": 1
+    },
+    {
+        "id": "bc2ff1b7be3f272b",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "cdc198e47f49d685",
+        "order": 29,
+        "width": 1,
+        "height": 1
+    },
+    {
+        "id": "80d6d26840a717a8",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "cdc198e47f49d685",
+        "order": 30,
+        "width": 1,
+        "height": 1
+    },
+    {
+        "id": "a8b74e846e657e88",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "cdc198e47f49d685",
+        "order": 31,
+        "width": 1,
+        "height": 1
+    },
+    {
+        "id": "d40a6ee85f8d1213",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "cdc198e47f49d685",
+        "order": 32,
+        "width": 1,
+        "height": 1
+    },
+    {
+        "id": "c81e45cdcae41927",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "cdc198e47f49d685",
+        "order": 33,
+        "width": 1,
+        "height": 1
+    },
+    {
+        "id": "ec2823f388ddddbf",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "cdc198e47f49d685",
+        "order": 34,
+        "width": 1,
+        "height": 1
+    },
+    {
+        "id": "7eaa4503eb26d4e1",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "cdc198e47f49d685",
+        "order": 35,
+        "width": 1,
+        "height": 1
+    },
+    {
+        "id": "d00e6b8ba9e456f6",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "cdc198e47f49d685",
+        "order": 36,
+        "width": 1,
+        "height": 1
+    },
+    {
+        "id": "42f872d2c728e450",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "cdc198e47f49d685",
+        "order": 37,
+        "width": 1,
+        "height": 1
+    },
+    {
+        "id": "cbc3324435cb1cbb",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "cdc198e47f49d685",
+        "order": 38,
+        "width": 1,
+        "height": 1
+    },
+    {
+        "id": "507a1b644e3cf408",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "cdc198e47f49d685",
+        "order": 39,
+        "width": 1,
+        "height": 1
+    },
+    {
+        "id": "2b9e0651abba0078",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "cdc198e47f49d685",
+        "order": 40,
+        "width": 1,
+        "height": 1
+    },
+    {
+        "id": "9a710cb24187d896",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "fb1ccea75cb8fa26",
+        "order": 2,
+        "width": 23,
+        "height": 1
+    },
+    {
+        "id": "66470acb781b980d",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "fb1ccea75cb8fa26",
+        "order": 3,
+        "width": 10,
+        "height": 1
+    },
+    {
+        "id": "8fb87b1d78a72702",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "fb1ccea75cb8fa26",
+        "order": 5,
+        "width": 10,
+        "height": 1
+    },
+    {
+        "id": "f8cade42d1918ae4",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "fb1ccea75cb8fa26",
+        "order": 6,
+        "width": 10,
+        "height": 1
+    },
+    {
+        "id": "8ab70fe8496bd46e",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "fb1ccea75cb8fa26",
+        "order": 8,
+        "width": 10,
+        "height": 1
+    },
+    {
+        "id": "406849cfa8d67de4",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "fb1ccea75cb8fa26",
+        "order": 9,
+        "width": 26,
+        "height": 1
+    },
+    {
+        "id": "39e7274f059e6794",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "fb1ccea75cb8fa26",
+        "order": 10,
+        "width": 10,
+        "height": 1
+    },
+    {
+        "id": "d688d7f2d12288e9",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "fb1ccea75cb8fa26",
+        "order": 12,
+        "width": 10,
+        "height": 1
+    },
+    {
+        "id": "0ffec5e196502862",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "b538bc258877ec22",
+        "order": 2,
+        "width": 23,
+        "height": 1
+    },
+    {
+        "id": "0718ab87b3721c07",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "b538bc258877ec22",
+        "order": 3,
+        "width": 9,
+        "height": 1
+    },
+    {
+        "id": "848f74c9b0f4d812",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "b538bc258877ec22",
+        "order": 5,
+        "width": 11,
+        "height": 1
+    },
+    {
+        "id": "dbbbb21cfb019ef1",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "b538bc258877ec22",
+        "order": 6,
+        "width": 9,
+        "height": 1
+    },
+    {
+        "id": "473608e1a57e9d70",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "b538bc258877ec22",
+        "order": 8,
+        "width": 11,
+        "height": 1
+    },
+    {
+        "id": "2d2df7fcb863115e",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "b538bc258877ec22",
+        "order": 9,
+        "width": 26,
+        "height": 1
+    },
+    {
+        "id": "495fca551bc8607d",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "b538bc258877ec22",
+        "order": 10,
+        "width": 9,
+        "height": 1
+    },
+    {
+        "id": "2ae1ea13ba538365",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "b538bc258877ec22",
+        "order": 12,
+        "width": 11,
+        "height": 1
+    },
+    {
+        "id": "681f2900706444a8",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "89224715577891b5",
+        "order": 2,
+        "width": 23,
+        "height": 1
+    },
+    {
+        "id": "387f623ce3478b14",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "89224715577891b5",
+        "order": 3,
+        "width": 10,
+        "height": 1
+    },
+    {
+        "id": "5cc26b1394dd5703",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "89224715577891b5",
+        "order": 5,
+        "width": 10,
+        "height": 1
+    },
+    {
+        "id": "5b93ba7082931f9f",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "89224715577891b5",
+        "order": 6,
+        "width": 10,
+        "height": 1
+    },
+    {
+        "id": "ca5389cb4991d191",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "89224715577891b5",
+        "order": 8,
+        "width": 10,
+        "height": 1
+    },
+    {
+        "id": "fceb9bb4e1e94cf1",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "89224715577891b5",
+        "order": 9,
+        "width": 10,
+        "height": 1
+    },
+    {
+        "id": "528a381628ba2d3f",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "89224715577891b5",
+        "order": 11,
+        "width": 10,
+        "height": 1
+    },
+    {
+        "id": "d04c8a287c7ff507",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "89224715577891b5",
+        "order": 12,
+        "width": 10,
+        "height": 1
+    },
+    {
+        "id": "7970e534a7df67c2",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "89224715577891b5",
+        "order": 14,
+        "width": 10,
+        "height": 1
+    },
+    {
+        "id": "f39197272f80db89",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "89224715577891b5",
+        "order": 15,
+        "width": 10,
+        "height": 1
+    },
+    {
+        "id": "e125e5b146ec5a64",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "89224715577891b5",
+        "order": 17,
+        "width": 10,
+        "height": 1
+    },
+    {
+        "id": "356af0bddd7e9a4f",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "89224715577891b5",
+        "order": 18,
+        "width": 10,
+        "height": 1
+    },
+    {
+        "id": "cc6158d64a90dfda",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "89224715577891b5",
+        "order": 20,
+        "width": 10,
+        "height": 1
+    },
+    {
+        "id": "79a4f98ca0bc9153",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "89224715577891b5",
+        "order": 21,
+        "width": 10,
+        "height": 1
+    },
+    {
+        "id": "f13ed837633e2b9c",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "89224715577891b5",
+        "order": 23,
+        "width": 10,
+        "height": 1
+    },
+    {
+        "id": "e8d0c48023c6e661",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "89224715577891b5",
+        "order": 24,
+        "width": 26,
+        "height": 1
+    },
+    {
+        "id": "0f6bef280be5afda",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "89224715577891b5",
+        "order": 25,
+        "width": 10,
+        "height": 1
+    },
+    {
+        "id": "4480f8f7bca49c7f",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "89224715577891b5",
+        "order": 27,
+        "width": 10,
+        "height": 1
+    },
+    {
+        "id": "70c2eff4d001085b",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "c4d128cbe99ef29c",
+        "order": 2,
+        "width": 23,
+        "height": 1
+    },
+    {
+        "id": "90b1339f359dd3b5",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "c4d128cbe99ef29c",
+        "order": 3,
+        "width": 10,
+        "height": 1
+    },
+    {
+        "id": "b252836ef946b2d9",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "c4d128cbe99ef29c",
+        "order": 5,
+        "width": 10,
+        "height": 1
+    },
+    {
+        "id": "bd4f41e8d876f72c",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "c4d128cbe99ef29c",
+        "order": 6,
+        "width": 10,
+        "height": 1
+    },
+    {
+        "id": "c7345f0afa17e2ed",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "c4d128cbe99ef29c",
+        "order": 8,
+        "width": 10,
+        "height": 1
+    },
+    {
+        "id": "a9a83f5108cce271",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "c4d128cbe99ef29c",
+        "order": 9,
+        "width": 10,
+        "height": 1
+    },
+    {
+        "id": "f5cc1bdc1d1b5ba0",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "c4d128cbe99ef29c",
+        "order": 11,
+        "width": 10,
+        "height": 1
+    },
+    {
+        "id": "cef8a43ffb5d3951",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "c4d128cbe99ef29c",
+        "order": 12,
+        "width": 26,
+        "height": 1
+    },
+    {
+        "id": "bc095687933f626f",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "c4d128cbe99ef29c",
+        "order": 13,
+        "width": 10,
+        "height": 1
+    },
+    {
+        "id": "cc064d3443e931f7",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "c4d128cbe99ef29c",
+        "order": 15,
+        "width": 10,
+        "height": 1
+    },
+    {
+        "id": "e6d73fe331ffb530",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "15b991c9ebc281ee",
+        "order": 2,
+        "width": 23,
+        "height": 1
+    },
+    {
+        "id": "641eac7d909a1a73",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "15b991c9ebc281ee",
+        "order": 3,
+        "width": 26,
+        "height": 1
+    },
+    {
+        "id": "542b3f6c939feb1c",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "15b991c9ebc281ee",
+        "order": 4,
+        "width": 20,
+        "height": 1
+    },
+    {
+        "id": "884178a4764933ab",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "15b991c9ebc281ee",
+        "order": 6,
+        "width": 20,
+        "height": 1
+    },
+    {
+        "id": "82890d6491f3a59a",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "15b991c9ebc281ee",
+        "order": 8,
+        "width": 20,
+        "height": 1
+    },
+    {
+        "id": "c808b3739116152c",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "e16130bc3ab476b8",
+        "order": 1,
+        "width": 23,
+        "height": 1
+    },
+    {
+        "id": "fbe9198e192f1a72",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "e16130bc3ab476b8",
+        "order": 3,
+        "width": 9,
+        "height": 1
+    },
+    {
+        "id": "73905c66603fc804",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "e16130bc3ab476b8",
+        "order": 5,
+        "width": 11,
+        "height": 1
+    },
+    {
+        "id": "03a73e9f55e66411",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "e16130bc3ab476b8",
+        "order": 6,
+        "width": 9,
+        "height": 1
+    },
+    {
+        "id": "f2237c43d7cc9ed5",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "e16130bc3ab476b8",
+        "order": 8,
+        "width": 11,
+        "height": 1
+    },
+    {
+        "id": "59a6651b568646ae",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "e16130bc3ab476b8",
+        "order": 9,
+        "width": 9,
+        "height": 1
+    },
+    {
+        "id": "191b8a1ce95e652b",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "e16130bc3ab476b8",
+        "order": 11,
+        "width": 11,
+        "height": 1
+    },
+    {
+        "id": "184b64caa94e318d",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "e16130bc3ab476b8",
+        "order": 12,
+        "width": 9,
+        "height": 1
+    },
+    {
+        "id": "ae1e17043847ba8d",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "e16130bc3ab476b8",
+        "order": 14,
+        "width": 11,
+        "height": 1
+    },
+    {
+        "id": "9b36f097788e6a82",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "e16130bc3ab476b8",
+        "order": 15,
+        "width": 9,
+        "height": 1
+    },
+    {
+        "id": "8c59fe877189defd",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "e16130bc3ab476b8",
+        "order": 17,
+        "width": 11,
+        "height": 1
+    },
+    {
+        "id": "4c439936ec5f1883",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "e16130bc3ab476b8",
+        "order": 18,
+        "width": 9,
+        "height": 1
+    },
+    {
+        "id": "71a9eeb35046a8e4",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "e16130bc3ab476b8",
+        "order": 20,
+        "width": 11,
+        "height": 1
+    },
+    {
+        "id": "481c459bb6175295",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "cdc198e47f49d685",
+        "order": 2,
+        "width": 23,
+        "height": 1
+    },
+    {
+        "id": "4b0f73beae6e92a8",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "cdc198e47f49d685",
+        "order": 4,
+        "width": 1,
+        "height": 1
+    },
+    {
+        "id": "82ce56bee5c9a49c",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "cdc198e47f49d685",
+        "order": 6,
+        "width": 1,
+        "height": 1
+    },
+    {
+        "id": "5467e64e2796d88f",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "cdc198e47f49d685",
+        "order": 8,
+        "width": 1,
+        "height": 1
+    },
+    {
+        "id": "9059d9bb7f5a967a",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "cdc198e47f49d685",
+        "order": 10,
+        "width": 1,
+        "height": 1
+    },
+    {
+        "id": "deeff65f62e613a7",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "cdc198e47f49d685",
+        "order": 11,
+        "width": 1,
+        "height": 1
+    },
+    {
+        "id": "55f74cc9a7f469e2",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "cdc198e47f49d685",
+        "order": 12,
+        "width": 1,
+        "height": 1
+    },
+    {
+        "id": "2c569a808241ae76",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "cdc198e47f49d685",
+        "order": 13,
+        "width": 1,
+        "height": 1
+    },
+    {
+        "id": "4d727dd48a582883",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "cdc198e47f49d685",
+        "order": 14,
+        "width": 1,
+        "height": 1
+    },
+    {
+        "id": "291e05952fc4bb57",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "cdc198e47f49d685",
+        "order": 15,
+        "width": 1,
+        "height": 1
+    },
+    {
+        "id": "6c912c79c8086ddd",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "cdc198e47f49d685",
+        "order": 16,
+        "width": 1,
+        "height": 1
+    },
+    {
+        "id": "6f5f315d4e265660",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "cdc198e47f49d685",
+        "order": 17,
+        "width": 1,
+        "height": 1
+    },
+    {
+        "id": "ac7cb207c720b69a",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "cdc198e47f49d685",
+        "order": 18,
+        "width": 1,
+        "height": 1
+    },
+    {
+        "id": "722a40d06240348e",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "cdc198e47f49d685",
+        "order": 19,
+        "width": 1,
+        "height": 1
+    },
+    {
+        "id": "cd7de5659de7da84",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "cdc198e47f49d685",
+        "order": 20,
+        "width": 10,
+        "height": 1
+    },
+    {
+        "id": "0c4439e7aafacecc",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "cdc198e47f49d685",
+        "order": 22,
+        "width": 10,
+        "height": 1
+    },
+    {
+        "id": "d06c9ae1ce72022b",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "cdc198e47f49d685",
+        "order": 23,
+        "width": 10,
+        "height": 1
+    },
+    {
+        "id": "e702f3d6416eb10b",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "cdc198e47f49d685",
+        "order": 25,
+        "width": 10,
+        "height": 1
+    },
+    {
+        "id": "db6ba5645f1ab064",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "cdc198e47f49d685",
+        "order": 26,
+        "width": 1,
+        "height": 1
+    },
+    {
+        "id": "0192f1cb3bdef6cd",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "cdc198e47f49d685",
+        "order": 28,
+        "width": 1,
+        "height": 1
+    },
+    {
+        "id": "805e79541af44e85",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "cdc198e47f49d685",
+        "order": 29,
+        "width": 1,
+        "height": 1
+    },
+    {
+        "id": "14090bf2f8d1b1b2",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "cdc198e47f49d685",
+        "order": 30,
+        "width": 1,
+        "height": 1
+    },
+    {
+        "id": "d07a1f9319f1406e",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "cdc198e47f49d685",
+        "order": 31,
+        "width": 1,
+        "height": 1
+    },
+    {
+        "id": "125d724bf8187ced",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "cdc198e47f49d685",
+        "order": 32,
+        "width": 1,
+        "height": 1
+    },
+    {
+        "id": "ef8a82c7def38c3d",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "cdc198e47f49d685",
+        "order": 33,
+        "width": 1,
+        "height": 1
+    },
+    {
+        "id": "e3fae5f33c401aa9",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "cdc198e47f49d685",
+        "order": 34,
+        "width": 1,
+        "height": 1
+    },
+    {
+        "id": "76976e58af7cd667",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "cdc198e47f49d685",
+        "order": 35,
+        "width": 1,
+        "height": 1
+    },
+    {
+        "id": "70d31b6489daf6dd",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "cdc198e47f49d685",
+        "order": 36,
+        "width": 1,
+        "height": 1
+    },
+    {
+        "id": "3bf4dbc70c51f5a8",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "cdc198e47f49d685",
+        "order": 37,
+        "width": 1,
+        "height": 1
+    },
+    {
+        "id": "e3998470a86831c2",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "cdc198e47f49d685",
+        "order": 38,
+        "width": 1,
+        "height": 1
+    },
+    {
+        "id": "e3409c3ddc410afd",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "cdc198e47f49d685",
+        "order": 39,
+        "width": 1,
+        "height": 1
+    },
+    {
+        "id": "893e464536d71d59",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "cdc198e47f49d685",
+        "order": 40,
+        "width": 1,
+        "height": 1
+    },
+    {
+        "id": "cd3374305658d308",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "fb1ccea75cb8fa26",
+        "order": 2,
+        "width": 23,
+        "height": 1
+    },
+    {
+        "id": "7e45ce57b8633997",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "fb1ccea75cb8fa26",
+        "order": 3,
+        "width": 10,
+        "height": 1
+    },
+    {
+        "id": "fd3629d6706b8dde",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "fb1ccea75cb8fa26",
+        "order": 5,
+        "width": 10,
+        "height": 1
+    },
+    {
+        "id": "825b7baaa6e48e24",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "fb1ccea75cb8fa26",
+        "order": 6,
+        "width": 10,
+        "height": 1
+    },
+    {
+        "id": "e57e982107f82129",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "fb1ccea75cb8fa26",
+        "order": 8,
+        "width": 10,
+        "height": 1
+    },
+    {
+        "id": "f8f9213902269560",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "fb1ccea75cb8fa26",
+        "order": 9,
+        "width": 26,
+        "height": 1
+    },
+    {
+        "id": "1a7936ef15ef2989",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "fb1ccea75cb8fa26",
+        "order": 10,
+        "width": 10,
+        "height": 1
+    },
+    {
+        "id": "37443ac6a0d954c4",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "fb1ccea75cb8fa26",
+        "order": 12,
+        "width": 10,
+        "height": 1
+    },
+    {
+        "id": "23f153d554d0f88b",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "b538bc258877ec22",
+        "order": 2,
+        "width": 23,
+        "height": 1
+    },
+    {
+        "id": "274636cb0b5cc9d4",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "b538bc258877ec22",
+        "order": 3,
+        "width": 9,
+        "height": 1
+    },
+    {
+        "id": "15ebcb39c5615185",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "b538bc258877ec22",
+        "order": 5,
+        "width": 11,
+        "height": 1
+    },
+    {
+        "id": "a0a12bb5308b45fa",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "b538bc258877ec22",
+        "order": 6,
+        "width": 9,
+        "height": 1
+    },
+    {
+        "id": "f93fea4f616e8b86",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "b538bc258877ec22",
+        "order": 8,
+        "width": 11,
+        "height": 1
+    },
+    {
+        "id": "0f982dd59969b1ed",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "b538bc258877ec22",
+        "order": 9,
+        "width": 26,
+        "height": 1
+    },
+    {
+        "id": "442d6af0ee1c18df",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "b538bc258877ec22",
+        "order": 10,
+        "width": 9,
+        "height": 1
+    },
+    {
+        "id": "98feabf0506e84fe",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "b538bc258877ec22",
+        "order": 12,
+        "width": 11,
+        "height": 1
+    },
+    {
+        "id": "b889106c3afe56de",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "89224715577891b5",
+        "order": 2,
+        "width": 23,
+        "height": 1
+    },
+    {
+        "id": "320917fde7bf73c4",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "89224715577891b5",
+        "order": 3,
+        "width": 10,
+        "height": 1
+    },
+    {
+        "id": "b2e76111640e9238",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "89224715577891b5",
+        "order": 5,
+        "width": 10,
+        "height": 1
+    },
+    {
+        "id": "a13eaaab8e0a38b9",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "89224715577891b5",
+        "order": 6,
+        "width": 10,
+        "height": 1
+    },
+    {
+        "id": "c257cf9716aa3a06",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "89224715577891b5",
+        "order": 8,
+        "width": 10,
+        "height": 1
+    },
+    {
+        "id": "1ff4b82c933a893d",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "89224715577891b5",
+        "order": 9,
+        "width": 10,
+        "height": 1
+    },
+    {
+        "id": "2e902fe62445d020",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "89224715577891b5",
+        "order": 11,
+        "width": 10,
+        "height": 1
+    },
+    {
+        "id": "267404827c732319",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "89224715577891b5",
+        "order": 12,
+        "width": 10,
+        "height": 1
+    },
+    {
+        "id": "1541f1a5087731da",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "89224715577891b5",
+        "order": 14,
+        "width": 10,
+        "height": 1
+    },
+    {
+        "id": "d81b891ad86fba39",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "89224715577891b5",
+        "order": 15,
+        "width": 10,
+        "height": 1
+    },
+    {
+        "id": "6d097d4612d39aa1",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "89224715577891b5",
+        "order": 17,
+        "width": 10,
+        "height": 1
+    },
+    {
+        "id": "d0b6eeeeaeadd4a1",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "89224715577891b5",
+        "order": 18,
+        "width": 10,
+        "height": 1
+    },
+    {
+        "id": "f09e67d676295a3d",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "89224715577891b5",
+        "order": 20,
+        "width": 10,
+        "height": 1
+    },
+    {
+        "id": "624210aac3ecf9ae",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "89224715577891b5",
+        "order": 21,
+        "width": 10,
+        "height": 1
+    },
+    {
+        "id": "c6f5af1142f2a3cf",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "89224715577891b5",
+        "order": 23,
+        "width": 10,
+        "height": 1
+    },
+    {
+        "id": "d5cc76c8f2d1ad57",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "89224715577891b5",
+        "order": 24,
+        "width": 26,
+        "height": 1
+    },
+    {
+        "id": "1af5d3c1782955fd",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "89224715577891b5",
+        "order": 25,
+        "width": 10,
+        "height": 1
+    },
+    {
+        "id": "8fa322dd975d7188",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "89224715577891b5",
+        "order": 27,
+        "width": 10,
+        "height": 1
+    },
+    {
+        "id": "272a57173aa8ea1e",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "c4d128cbe99ef29c",
+        "order": 2,
+        "width": 23,
+        "height": 1
+    },
+    {
+        "id": "af9241ce23022b9a",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "c4d128cbe99ef29c",
+        "order": 3,
+        "width": 10,
+        "height": 1
+    },
+    {
+        "id": "110b2523d4543852",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "c4d128cbe99ef29c",
+        "order": 5,
+        "width": 10,
+        "height": 1
+    },
+    {
+        "id": "ac51469c728b9dbc",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "c4d128cbe99ef29c",
+        "order": 6,
+        "width": 10,
+        "height": 1
+    },
+    {
+        "id": "a0592ac18299504a",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "c4d128cbe99ef29c",
+        "order": 8,
+        "width": 10,
+        "height": 1
+    },
+    {
+        "id": "99660fe2e40bfa41",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "c4d128cbe99ef29c",
+        "order": 9,
+        "width": 10,
+        "height": 1
+    },
+    {
+        "id": "5659928af4c3feb3",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "c4d128cbe99ef29c",
+        "order": 11,
+        "width": 10,
+        "height": 1
+    },
+    {
+        "id": "bff3ca09b023f5c0",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "c4d128cbe99ef29c",
+        "order": 12,
+        "width": 26,
+        "height": 1
+    },
+    {
+        "id": "3223fd6df7b907d7",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "c4d128cbe99ef29c",
+        "order": 13,
+        "width": 10,
+        "height": 1
+    },
+    {
+        "id": "408cc9461576b75c",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "c4d128cbe99ef29c",
+        "order": 15,
+        "width": 10,
+        "height": 1
+    },
+    {
+        "id": "cbe94661c68e1507",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "15b991c9ebc281ee",
+        "order": 2,
+        "width": 23,
+        "height": 1
+    },
+    {
+        "id": "9cb77bbb1f94be0d",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "15b991c9ebc281ee",
+        "order": 3,
+        "width": 26,
+        "height": 1
+    },
+    {
+        "id": "33f90b02f1a7159d",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "15b991c9ebc281ee",
+        "order": 4,
+        "width": 20,
+        "height": 1
+    },
+    {
+        "id": "8a5bc92f15e32854",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "15b991c9ebc281ee",
+        "order": 6,
+        "width": 20,
+        "height": 1
+    },
+    {
+        "id": "3c33ce0dd28fa61e",
+        "type": "ui_spacer",
+        "z": "2e2fa0d633e30fc9",
+        "name": "spacer",
+        "group": "15b991c9ebc281ee",
+        "order": 8,
+        "width": 20,
+        "height": 1
+    },
+    {
+        "id": "f5314e0adbc5bc97",
+        "type": "mqtt-broker",
+        "name": "mosquitto",
+        "broker": "localhost",
+        "port": "1883",
+        "clientid": "LoRaClient",
+        "autoConnect": true,
+        "usetls": false,
+        "protocolVersion": "4",
+        "keepalive": "60",
+        "cleansession": true,
+        "birthTopic": "",
+        "birthQos": "0",
+        "birthPayload": "",
+        "birthMsg": {},
+        "closeTopic": "",
+        "closeQos": "0",
+        "closePayload": "",
+        "closeMsg": {},
+        "willTopic": "",
+        "willQos": "0",
+        "willPayload": "",
+        "willMsg": {},
+        "sessionExpiry": ""
+    },
+    {
+        "id": "da0afbc21da333e3",
+        "type": "telegram bot",
+        "botname": "GatewayRaspy_bot",
+        "usernames": "",
+        "chatids": "",
+        "baseapiurl": "",
+        "updatemode": "polling",
+        "pollinterval": "300",
+        "usesocks": false,
+        "sockshost": "",
+        "socksport": "6667",
+        "socksusername": "anonymous",
+        "sockspassword": "",
+        "bothost": "",
+        "botpath": "",
+        "localbotport": "8443",
+        "publicbotport": "8443",
+        "privatekey": "",
+        "certificate": "",
+        "useselfsignedcertificate": false,
+        "sslterminated": false,
+        "verboselogging": false
+    },
+    {
+        "id": "fb1ccea75cb8fa26",
+        "type": "ui_group",
+        "name": "Consultarestatuspiscina",
+        "tab": "6be888c8a2b81c52",
+        "order": 3,
+        "disp": true,
+        "width": 26,
+        "collapse": false,
+        "className": ""
+    },
+    {
+        "id": "ef0cb22a29208031",
+        "type": "MySQLdatabase",
+        "name": "",
+        "host": "localhost",
+        "port": "3306",
+        "db": "llenadotolvasdb",
+        "tz": "",
+        "charset": "UTF8"
+    },
+    {
+        "id": "89224715577891b5",
+        "type": "ui_group",
+        "name": "Insertarnuevousuario",
+        "tab": "6be888c8a2b81c52",
+        "order": 5,
+        "disp": true,
+        "width": 26,
+        "collapse": false,
+        "className": ""
+    },
+    {
+        "id": "e16130bc3ab476b8",
+        "type": "ui_group",
+        "name": "MenuPrincipal",
+        "tab": "6be888c8a2b81c52",
+        "order": 1,
+        "disp": true,
+        "width": 26,
+        "collapse": false,
+        "className": ""
+    },
+    {
+        "id": "cdc198e47f49d685",
+        "type": "ui_group",
+        "name": "General",
+        "tab": "6be888c8a2b81c52",
+        "order": 2,
+        "disp": true,
+        "width": 26,
+        "collapse": false,
+        "className": ""
+    },
+    {
+        "id": "b538bc258877ec22",
+        "type": "ui_group",
+        "name": "Notificaciones",
+        "tab": "6be888c8a2b81c52",
+        "order": 4,
+        "disp": true,
+        "width": 26,
+        "collapse": false,
+        "className": ""
+    },
+    {
+        "id": "15b991c9ebc281ee",
+        "type": "ui_group",
+        "name": "Restaurarestatuspiscina",
+        "tab": "6be888c8a2b81c52",
+        "order": 7,
+        "disp": true,
+        "width": 26,
+        "collapse": false,
+        "className": ""
+    },
+    {
+        "id": "c4d128cbe99ef29c",
+        "type": "ui_group",
+        "name": "Insertarnuevastolvas",
+        "tab": "6be888c8a2b81c52",
+        "order": 6,
+        "disp": true,
+        "width": 26,
+        "collapse": false,
+        "className": ""
+    },
+    {
+        "id": "0bde2877993b7e1c",
+        "type": "ui_group",
+        "name": "Ingreso",
+        "tab": "f2dc12b2249b3ffc",
+        "order": 1,
+        "disp": true,
+        "width": "6",
+        "collapse": false,
+        "className": ""
+    },
+    {
+        "id": "6be888c8a2b81c52",
+        "type": "ui_tab",
+        "name": "SmartFilling",
+        "icon": "dashboard",
+        "order": 3,
+        "disabled": false,
+        "hidden": true
+    },
+    {
+        "id": "f2dc12b2249b3ffc",
+        "type": "ui_tab",
+        "name": "Inicio",
+        "icon": "dashboard",
+        "order": 1,
+        "disabled": false,
+        "hidden": true
+    }
+]
